@@ -5,8 +5,8 @@ export const metadata: Metadata = { title: "Politique de confidentialité — Fi
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="mx-auto max-w-2xl space-y-6 p-8 text-sm leading-relaxed">
-      <h1 className="text-xl font-semibold">Politique de confidentialité</h1>
+    <>
+      <h1>Politique de confidentialité</h1>
       <LegalDisclaimer />
 
       <section className="space-y-2">
@@ -73,6 +73,6 @@ export default function PrivacyPolicyPage() {
           reste, mais n&apos;est plus rattaché à votre identité.
         </p>
       </section>
-    </div>
+    </>
   );
 }

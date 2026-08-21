@@ -9,6 +9,13 @@ import {
   type RecordVisitResult,
 } from "./actions";
 import { CardQrCode } from "./CardQrCode";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Camera, CheckCircle2, RotateCcw, Search, UserPlus } from "lucide-react";
 
 const SCANNER_ELEMENT_ID = "qr-scanner";
 
@@ -125,122 +132,108 @@ export default function ScanPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 p-8 dark:bg-black">
-      <div className="mx-auto max-w-md space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Scanner un client</h1>
-          <a href="/dashboard" className="text-sm text-zinc-500 hover:underline">
-            ← Tableau de bord
-          </a>
-        </div>
+    <div className="mx-auto max-w-md space-y-6">
+      <h1 className="text-xl font-semibold">Scanner un client</h1>
 
-        <div className="space-y-2">
-          <div
-            id={SCANNER_ELEMENT_ID}
-            className="mx-auto w-full max-w-xs overflow-hidden rounded border border-zinc-300 dark:border-zinc-700"
-          />
-          {cameraStatus === "loading" && (
-            <p className="text-center text-sm text-zinc-500">Activation de la caméra…</p>
-          )}
-          {cameraStatus === "unavailable" && (
-            <p className="text-center text-sm text-zinc-500">
-              Caméra indisponible — utilisez la saisie manuelle ci-dessous.
-            </p>
-          )}
-        </div>
-
-        <form onSubmit={handleManualSubmit} className="flex gap-2">
-          <input
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="Numéro de téléphone"
-            required
-            className="flex-1 rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
-          />
-          <button
-            type="submit"
-            disabled={isPending}
-            className="rounded bg-black px-4 py-2 text-white hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
-          >
-            Rechercher
-          </button>
-        </form>
-
-        {error && (
-          <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-            {error}
-          </p>
+      <Card className="overflow-hidden py-0">
+        <div id={SCANNER_ELEMENT_ID} className="aspect-square w-full bg-muted" />
+        {cameraStatus !== "ready" && (
+          <CardContent className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
+            <Camera className="size-4 shrink-0" />
+            {cameraStatus === "loading"
+              ? "Activation de la caméra…"
+              : "Caméra indisponible — utilisez la saisie manuelle ci-dessous."}
+          </CardContent>
         )}
+      </Card>
 
-        {lookup?.status === "found" && (
-          <div className="space-y-3 rounded border border-zinc-300 p-4 dark:border-zinc-700">
+      <form onSubmit={handleManualSubmit} className="flex gap-2">
+        <Input
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="Numéro de téléphone"
+          required
+        />
+        <Button type="submit" disabled={isPending}>
+          <Search />
+          Rechercher
+        </Button>
+      </form>
+
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {lookup?.status === "found" && (
+        <Card>
+          <CardContent className="space-y-3">
             <p>
-              {lookup.name ?? "Client"} — {lookup.balance} point{lookup.balance > 1 ? "s" : ""}
+              {lookup.name ?? "Client"} — {lookup.balance} point
+              {lookup.balance > 1 ? "s" : ""}
             </p>
-            <button
+            <Button
+              className="w-full"
               onClick={() => handleRecordVisit(lookup.customerId)}
               disabled={isPending}
-              className="w-full rounded bg-black px-3 py-2 text-white hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
             >
               Enregistrer la visite
-            </button>
-          </div>
-        )}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
-        {lookup?.status === "not_found" && (
-          <form
-            onSubmit={handleRegister}
-            className="space-y-3 rounded border border-zinc-300 p-4 dark:border-zinc-700"
-          >
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              Nouveau client — {phone}
-            </p>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Nom (optionnel)"
-              className="w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
-            />
-            <label className="flex items-start gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={consent}
-                onChange={(e) => setConsent(e.target.checked)}
-                className="mt-1"
+      {lookup?.status === "not_found" && (
+        <Card>
+          <CardContent>
+            <form onSubmit={handleRegister} className="space-y-3">
+              <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <UserPlus className="size-4" />
+                Nouveau client — {phone}
+              </p>
+              <Input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Nom (optionnel)"
               />
-              <span>
-                Le client accepte de recevoir des communications (SMS) de cet
-                établissement.
-              </span>
-            </label>
-            <button
-              type="submit"
-              disabled={isPending}
-              className="w-full rounded bg-black px-3 py-2 text-white hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
-            >
-              Inscrire et enregistrer la visite
-            </button>
-          </form>
-        )}
+              <Label className="flex items-start gap-2 text-sm font-normal">
+                <Checkbox
+                  checked={consent}
+                  onCheckedChange={(checked) => setConsent(checked === true)}
+                  className="mt-0.5"
+                />
+                <span>
+                  Le client accepte de recevoir des communications (SMS) de
+                  cet établissement.
+                </span>
+              </Label>
+              <Button type="submit" className="w-full" disabled={isPending}>
+                Inscrire et enregistrer la visite
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      )}
 
-        {result && (
-          <div className="space-y-3 rounded border border-green-300 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950">
-            <p>
+      {result && (
+        <Card className="border-primary/30 bg-primary/5">
+          <CardContent className="space-y-3">
+            <p className="flex items-center gap-1.5 font-medium">
+              <CheckCircle2 className="size-4 text-primary" />
               Visite enregistrée — {result.balance} point
               {result.balance > 1 ? "s" : ""}
             </p>
             <CardQrCode customerId={result.customerId} />
-            <button
-              onClick={reset}
-              className="w-full rounded border border-zinc-300 px-3 py-2 text-sm hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-900"
-            >
+            <Button variant="outline" className="w-full" onClick={reset}>
+              <RotateCcw />
               Scanner un autre client
-            </button>
-          </div>
-        )}
-      </div>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

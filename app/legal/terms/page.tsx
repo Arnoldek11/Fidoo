@@ -5,8 +5,8 @@ export const metadata: Metadata = { title: "Conditions d'utilisation — Fidoo" 
 
 export default function TermsPage() {
   return (
-    <div className="mx-auto max-w-2xl space-y-6 p-8 text-sm leading-relaxed">
-      <h1 className="text-xl font-semibold">Conditions d&apos;utilisation</h1>
+    <>
+      <h1>Conditions d&apos;utilisation</h1>
       <LegalDisclaimer />
 
       <section className="space-y-2">
@@ -47,6 +47,6 @@ export default function TermsPage() {
           plans, période d&apos;essai, résiliation.]
         </p>
       </section>
-    </div>
+    </>
   );
 }

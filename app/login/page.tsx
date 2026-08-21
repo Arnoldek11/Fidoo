@@ -1,4 +1,8 @@
 import { login } from "./actions";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 const ERROR_MESSAGES: Record<string, string> = {
   invalid: "Merci de renseigner un email et un mot de passe valides.",
@@ -13,55 +17,50 @@ export default async function LoginPage({
   const { error } = await searchParams;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-black">
-      <div className="w-full max-w-sm space-y-6">
-        <h1 className="text-2xl font-semibold text-center">
-          Connexion établissement
-        </h1>
+    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
+      <Card className="w-full max-w-sm">
+        <CardHeader className="items-center text-center">
+          <span className="mb-2 flex size-10 items-center justify-center rounded-lg bg-primary text-lg font-semibold text-primary-foreground">
+            F
+          </span>
+          <CardTitle className="text-xl">Connexion établissement</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {error && (
+            <p className="mb-4 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {ERROR_MESSAGES[error] ?? "Une erreur est survenue."}
+            </p>
+          )}
 
-        {error && (
-          <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-            {ERROR_MESSAGES[error] ?? "Une erreur est survenue."}
-          </p>
-        )}
+          <form action={login} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+              />
+            </div>
 
-        <form action={login} className="space-y-4">
-          <div className="space-y-1">
-            <label htmlFor="email" className="text-sm font-medium">
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              autoComplete="email"
-              className="w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
-            />
-          </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="password">Mot de passe</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                required
+                autoComplete="current-password"
+              />
+            </div>
 
-          <div className="space-y-1">
-            <label htmlFor="password" className="text-sm font-medium">
-              Mot de passe
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              autoComplete="current-password"
-              className="w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full rounded bg-black px-3 py-2 text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
-          >
-            Se connecter
-          </button>
-        </form>
-      </div>
+            <Button type="submit" className="w-full">
+              Se connecter
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LegalDisclaimer } from "../LegalDisclaimer";
+import { Card, CardContent } from "@/components/ui/card";
 
 export const metadata: Metadata = { title: "Sous-traitants — Fidoo" };
 
@@ -32,31 +33,30 @@ const SUBPROCESSORS = [
 
 export default function SubprocessorsPage() {
   return (
-    <div className="mx-auto max-w-2xl space-y-6 p-8 text-sm leading-relaxed">
-      <h1 className="text-xl font-semibold">Registre des sous-traitants</h1>
+    <>
+      <h1>Registre des sous-traitants</h1>
       <LegalDisclaimer />
 
       <p>
         Liste des prestataires techniques qui traitent des données pour le
-        compte de Fidoo. Mise à jour à chaque ajout d&apos;un nouveau
-        service (ex. Stripe lors de la mise en place de la facturation).
+        compte de Fidoo. Mise à jour à chaque ajout d&apos;un nouveau service
+        (ex. Stripe lors de la mise en place de la facturation).
       </p>
 
-      <div className="space-y-4">
+      <div className="not-prose space-y-3">
         {SUBPROCESSORS.map((sp) => (
-          <div
-            key={sp.name}
-            className="rounded border border-zinc-300 p-4 dark:border-zinc-700"
-          >
-            <p className="font-semibold">{sp.name}</p>
-            <p className="text-zinc-600 dark:text-zinc-400">{sp.role}</p>
-            <p className="mt-1 text-xs text-zinc-500">
-              Localisation : {sp.location}
-            </p>
-            <p className="text-xs text-zinc-500">Données : {sp.data}</p>
-          </div>
+          <Card key={sp.name}>
+            <CardContent className="text-sm">
+              <p className="font-semibold text-foreground">{sp.name}</p>
+              <p className="text-muted-foreground">{sp.role}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Localisation : {sp.location}
+              </p>
+              <p className="text-xs text-muted-foreground">Données : {sp.data}</p>
+            </CardContent>
+          </Card>
         ))}
       </div>
-    </div>
+    </>
   );
 }

@@ -1,10 +1,19 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getAuditLog } from "@/lib/audit/log";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 const ACTION_LABELS: Record<string, string> = {
-  viewed_customer: "a consulté la fiche client",
-  erased_customer: "a supprimé le client",
+  viewed_customer: "Consultation",
+  erased_customer: "Suppression",
 };
 
 export default async function AuditLogPage() {
@@ -17,32 +26,48 @@ export default async function AuditLogPage() {
   const entries = await getAuditLog(user.id);
 
   return (
-    <div className="min-h-screen bg-zinc-50 p-8 dark:bg-black">
-      <div className="mx-auto max-w-2xl space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Journal d&apos;accès</h1>
-          <a href="/dashboard" className="text-sm text-zinc-500 hover:underline">
-            ← Tableau de bord
-          </a>
-        </div>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-xl font-semibold">Journal d&apos;accès</h1>
+        <p className="text-sm text-muted-foreground">
           Qui a consulté ou supprimé des données client, et quand.
         </p>
+      </div>
 
-        <div className="space-y-2">
-          {entries.map((entry) => (
-            <div
-              key={entry.id}
-              className="rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700"
-            >
-              {entry.createdAt.toLocaleString("fr-BE")} —{" "}
-              {ACTION_LABELS[entry.action] ?? entry.action} ({entry.targetId})
-            </div>
-          ))}
-          {entries.length === 0 && (
-            <p className="text-sm text-zinc-500">Aucune entrée pour le moment.</p>
-          )}
-        </div>
+      <div className="rounded-lg border bg-card">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Date</TableHead>
+              <TableHead>Action</TableHead>
+              <TableHead>Cible</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {entries.map((entry) => (
+              <TableRow key={entry.id}>
+                <TableCell>{entry.createdAt.toLocaleString("fr-BE")}</TableCell>
+                <TableCell>
+                  <Badge
+                    variant={entry.action === "erased_customer" ? "destructive" : "secondary"}
+                  >
+                    {ACTION_LABELS[entry.action] ?? entry.action}
+                  </Badge>
+                </TableCell>
+                <TableCell className="font-mono text-xs text-muted-foreground">
+                  {entry.targetId}
+                </TableCell>
+              </TableRow>
+            ))}
+            {entries.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={3} className="py-6 text-center text-muted-foreground">
+                  Aucune entrée pour le moment.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

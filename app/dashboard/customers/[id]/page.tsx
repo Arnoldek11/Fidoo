@@ -3,13 +3,22 @@ import { createClient } from "@/lib/supabase/server";
 import { getCustomerHistory } from "@/lib/loyalty/stats";
 import { logAudit } from "@/lib/audit/log";
 import { DeleteCustomerButton } from "./DeleteCustomerButton";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Coffee,
+  Gift,
+  Megaphone,
+  TrendingUp,
+  CalendarCheck,
+  type LucideIcon,
+} from "lucide-react";
 
-const EVENT_LABELS: Record<string, string> = {
-  visit: "Visite",
-  points_added: "Point ajouté",
-  reward_redeemed: "Récompense échangée",
-  campaign_sent: "Campagne envoyée",
-  attributed_return: "Retour attribué à une campagne",
+const EVENT_META: Record<string, { label: string; icon: LucideIcon }> = {
+  visit: { label: "Visite", icon: CalendarCheck },
+  points_added: { label: "Point ajouté", icon: Coffee },
+  reward_redeemed: { label: "Récompense échangée", icon: Gift },
+  campaign_sent: { label: "Campagne envoyée", icon: Megaphone },
+  attributed_return: { label: "Retour attribué à une campagne", icon: TrendingUp },
 };
 
 export default async function CustomerDetailPage({
@@ -33,46 +42,45 @@ export default async function CustomerDetailPage({
   const { customer, events } = data;
 
   return (
-    <div className="min-h-screen bg-zinc-50 p-8 dark:bg-black">
-      <div className="mx-auto max-w-2xl space-y-6">
-        <div className="flex items-center justify-between">
+    <div className="mx-auto max-w-2xl space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
           <h1 className="text-xl font-semibold">
             {customer.name ?? customer.phone}
           </h1>
-          <a
-            href="/dashboard/customers"
-            className="text-sm text-zinc-500 hover:underline"
-          >
-            ← Clients
-          </a>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-sm text-muted-foreground">
             {customer.phone} — client depuis le{" "}
             {customer.createdAt.toLocaleDateString("fr-BE")}
           </p>
-          <DeleteCustomerButton customerId={customer.id} />
         </div>
+        <DeleteCustomerButton customerId={customer.id} />
+      </div>
 
+      <div className="space-y-2">
+        <h2 className="text-sm font-semibold text-muted-foreground">
+          Historique
+        </h2>
         <div className="space-y-2">
-          <h2 className="text-sm font-semibold text-zinc-500">Historique</h2>
-          <ol className="space-y-2">
-            {events.map((event) => (
-              <li
-                key={event.id}
-                className="flex justify-between rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700"
-              >
-                <span>{EVENT_LABELS[event.type] ?? event.type}</span>
-                <span className="text-zinc-500">
-                  {event.createdAt.toLocaleString("fr-BE")}
-                </span>
-              </li>
-            ))}
-            {events.length === 0 && (
-              <p className="text-sm text-zinc-500">Aucun événement.</p>
-            )}
-          </ol>
+          {events.map((event) => {
+            const meta = EVENT_META[event.type];
+            const Icon = meta?.icon ?? CalendarCheck;
+            return (
+              <Card key={event.id}>
+                <CardContent className="flex items-center justify-between py-3 text-sm">
+                  <span className="flex items-center gap-2">
+                    <Icon className="size-4 text-muted-foreground" />
+                    {meta?.label ?? event.type}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {event.createdAt.toLocaleString("fr-BE")}
+                  </span>
+                </CardContent>
+              </Card>
+            );
+          })}
+          {events.length === 0 && (
+            <p className="text-sm text-muted-foreground">Aucun événement.</p>
+          )}
         </div>
       </div>
     </div>
