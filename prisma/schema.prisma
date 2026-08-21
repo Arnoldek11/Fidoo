@@ -58,6 +58,7 @@ model Customer {
   events        Event[]
 
   @@unique([establishmentId, phone])
+  @@index([establishmentId])
   @@map("customers")
 }
 
@@ -79,5 +80,6 @@ model Event {
   customer      Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@index([customerId, createdAt])
+  @@index([establishmentId, type, createdAt])
   @@map("events")
 }
