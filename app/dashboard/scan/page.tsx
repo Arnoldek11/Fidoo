@@ -6,7 +6,9 @@ import {
   recordVisitForExistingCustomer,
   registerCustomerAndRecordVisit,
   type CustomerLookupResult,
+  type RecordVisitResult,
 } from "./actions";
+import { CardQrCode } from "./CardQrCode";
 
 const SCANNER_ELEMENT_ID = "qr-scanner";
 
@@ -23,7 +25,7 @@ type Html5QrcodeInstance = {
 export default function ScanPage() {
   const [phone, setPhone] = useState("");
   const [lookup, setLookup] = useState<CustomerLookupResult | null>(null);
-  const [result, setResult] = useState<{ name: string | null; balance: number } | null>(null);
+  const [result, setResult] = useState<RecordVisitResult | null>(null);
   const [name, setName] = useState("");
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -229,6 +231,7 @@ export default function ScanPage() {
               Visite enregistrée — {result.balance} point
               {result.balance > 1 ? "s" : ""}
             </p>
+            <CardQrCode customerId={result.customerId} />
             <button
               onClick={reset}
               className="w-full rounded border border-zinc-300 px-3 py-2 text-sm hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-900"

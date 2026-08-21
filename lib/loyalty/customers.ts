@@ -1,5 +1,11 @@
 import { asEstablishmentUser } from "@/lib/db/scoped";
 
+export async function findCustomerById(userId: string, customerId: string) {
+  return asEstablishmentUser(userId, (tx) =>
+    tx.customer.findUnique({ where: { id: customerId } })
+  );
+}
+
 export async function findCustomerByPhone(userId: string, phone: string) {
   return asEstablishmentUser(userId, async (tx) => {
     const establishmentUser = await tx.establishmentUser.findUniqueOrThrow({

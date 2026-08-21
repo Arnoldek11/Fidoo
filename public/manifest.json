@@ -1,0 +1,8 @@
+{
+  "name": "Fidoo — Carte de fidélité",
+  "short_name": "Fidoo",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fafafa",
+  "theme_color": "#000000"
+}

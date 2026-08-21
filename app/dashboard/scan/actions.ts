@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { findCustomerByPhone, registerCustomer } from "@/lib/loyalty/customers";
+import { findCustomerById, findCustomerByPhone, registerCustomer } from "@/lib/loyalty/customers";
 import { addVisit, getCustomerBalance } from "@/lib/loyalty/events";
 import { hasMarketingConsent } from "@/lib/customers/consent";
 
@@ -56,8 +56,11 @@ export async function recordVisitForExistingCustomer(
 ): Promise<RecordVisitResult> {
   const userId = await requireUserId();
   await addVisit(userId, customerId);
-  const balance = await getCustomerBalance(userId, customerId);
-  return { customerId, name: null, balance };
+  const [customer, balance] = await Promise.all([
+    findCustomerById(userId, customerId),
+    getCustomerBalance(userId, customerId),
+  ]);
+  return { customerId, name: customer?.name ?? null, balance };
 }
 
 const registrationSchema = z.object({

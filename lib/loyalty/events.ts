@@ -39,9 +39,29 @@ export async function addVisit(userId: string, customerId: string) {
 }
 
 /**
- * Balance is always computed from the event log, never stored — this
- * reducer is order-independent by construction, so events can be inserted
- * out of temporal order without corrupting the result.
+ * Order-independent by construction: just reduces whatever events exist,
+ * regardless of what order they were inserted in. Shared by both the
+ * staff-scoped balance lookup and the public customer card, so the two
+ * can never disagree on how a balance is derived.
+ */
+export function computeBalance(
+  events: { type: string; metadata: unknown }[]
+): number {
+  return events.reduce((total, event) => {
+    const metadata = event.metadata as { points?: number };
+    if (event.type === "points_added") {
+      return total + (metadata.points ?? POINTS_PER_VISIT);
+    }
+    if (event.type === "reward_redeemed") {
+      return total - (metadata.points ?? DEFAULT_REDEMPTION_COST);
+    }
+    return total;
+  }, 0);
+}
+
+/**
+ * Balance is always computed from the event log, never stored — see
+ * computeBalance for the order-independence guarantee.
  */
 export async function getCustomerBalance(
   userId: string,
@@ -53,12 +73,6 @@ export async function getCustomerBalance(
       select: { type: true, metadata: true },
     });
 
-    return events.reduce((total, event) => {
-      const metadata = event.metadata as { points?: number };
-      if (event.type === "points_added") {
-        return total + (metadata.points ?? POINTS_PER_VISIT);
-      }
-      return total - (metadata.points ?? DEFAULT_REDEMPTION_COST);
-    }, 0);
+    return computeBalance(events);
   });
 }
