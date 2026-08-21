@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Establishment {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  city      String
+  plan      String   @default("pilote")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  users EstablishmentUser[]
+
+  @@map("establishments")
+}
+
+// id is NOT auto-generated: it must equal the Supabase Auth user's id (auth.uid()),
+// set explicitly when the row is created. See migration.sql for the FK into auth.users
+// and the RLS policies that rely on id = auth.uid().
+model EstablishmentUser {
+  id              String   @id @db.Uuid
+  establishmentId String   @map("establishment_id") @db.Uuid
+  email           String
+  role            String   @default("owner")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  establishment Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+
+  @@unique([establishmentId, email])
+  @@map("establishment_users")
+}
