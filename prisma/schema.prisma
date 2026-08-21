@@ -17,6 +17,10 @@ model Establishment {
   name      String
   city      String
   plan      String   @default("pilote")
+  // Used to estimate revenue attributed to win-back campaigns (Phase 5).
+  // Nullable: until an owner sets it, attributed returns are still counted,
+  // just without a revenue estimate.
+  averageBasketCents Int?     @map("average_basket_cents")
   createdAt DateTime @default(now()) @map("created_at")
 
   users     EstablishmentUser[]
@@ -70,8 +74,9 @@ model Event {
   id              String   @id @default(uuid()) @db.Uuid
   establishmentId String   @map("establishment_id") @db.Uuid
   customerId      String   @map("customer_id") @db.Uuid
-  // One of: visit, points_added, reward_redeemed (validated with Zod at the
-  // Server Action boundary, not a DB enum, since later phases add more types).
+  // One of: visit, points_added, reward_redeemed, campaign_sent,
+  // attributed_return (validated with Zod at the Server Action boundary,
+  // not a DB enum, since later phases add more types).
   type            String
   metadata        Json     @default("{}")
   createdAt       DateTime @default(now()) @map("created_at")

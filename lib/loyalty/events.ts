@@ -1,4 +1,5 @@
 import { asEstablishmentUser } from "@/lib/db/scoped";
+import { maybeAttributeReturn } from "@/lib/winback/attribution";
 
 export const POINTS_PER_VISIT = 1;
 export const DEFAULT_REDEMPTION_COST = 10;
@@ -9,16 +10,22 @@ export const DEFAULT_REDEMPTION_COST = 10;
  * used for the wallet pass counter). Kept separate because they answer
  * different questions and may diverge later (e.g. points per euro spent
  * instead of per visit).
+ *
+ * Also checks whether this visit is a win-back campaign's return (see
+ * lib/winback/attribution.ts) — checking here, right when a visit lands,
+ * is simpler and more reliable than a separate batch job trying to
+ * reconstruct "did anyone come back" after the fact.
  */
 export async function addVisit(userId: string, customerId: string) {
   return asEstablishmentUser(userId, async (tx) => {
     const establishmentUser = await tx.establishmentUser.findUniqueOrThrow({
       where: { id: userId },
     });
+    const establishmentId = establishmentUser.establishmentId;
 
     const visit = await tx.event.create({
       data: {
-        establishmentId: establishmentUser.establishmentId,
+        establishmentId,
         customerId,
         type: "visit",
         metadata: {},
@@ -27,14 +34,21 @@ export async function addVisit(userId: string, customerId: string) {
 
     const pointsAdded = await tx.event.create({
       data: {
-        establishmentId: establishmentUser.establishmentId,
+        establishmentId,
         customerId,
         type: "points_added",
         metadata: { points: POINTS_PER_VISIT },
       },
     });
 
-    return { visit, pointsAdded };
+    const attributedReturn = await maybeAttributeReturn(
+      tx,
+      establishmentId,
+      customerId,
+      visit.createdAt
+    );
+
+    return { visit, pointsAdded, attributedReturn };
   });
 }
 

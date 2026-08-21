@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { asEstablishmentUser } from "@/lib/db/scoped";
 import { getDashboardStats } from "@/lib/loyalty/stats";
+import { getCampaignStats } from "@/lib/winback/stats";
 import { logout } from "./actions";
 
 export default async function DashboardPage() {
@@ -26,6 +27,7 @@ export default async function DashboardPage() {
   }
 
   const stats = await getDashboardStats(user.id);
+  const campaigns = await getCampaignStats(user.id);
 
   return (
     <div className="min-h-screen bg-zinc-50 p-8 dark:bg-black">
@@ -68,6 +70,32 @@ export default async function DashboardPage() {
             </p>
           </div>
         </div>
+
+        {campaigns.length > 0 && (
+          <div className="space-y-2">
+            <h2 className="text-sm font-semibold text-zinc-500">
+              Campagnes de réactivation
+            </h2>
+            <div className="space-y-2">
+              {campaigns.map((campaign) => (
+                <div
+                  key={campaign.campaignId}
+                  className="rounded border border-zinc-300 p-3 text-sm dark:border-zinc-700"
+                >
+                  <p>
+                    {campaign.sentAt.toLocaleDateString("fr-BE")} —{" "}
+                    {campaign.targeted} client
+                    {campaign.targeted > 1 ? "s" : ""} ciblé
+                    {campaign.targeted > 1 ? "s" : ""}, {campaign.returned}{" "}
+                    revenu{campaign.returned > 1 ? "s" : ""}
+                    {campaign.revenueCents > 0 &&
+                      `, ~${(campaign.revenueCents / 100).toFixed(0)}€ de CA attribué`}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="flex gap-3">
           <a

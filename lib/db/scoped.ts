@@ -1,6 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import type { PrismaClient } from "@/lib/generated/prisma/client";
 
+export type ScopedTx = Omit<
+  PrismaClient,
+  "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends"
+>;
+
 /**
  * Runs `callback` inside a transaction scoped to `userId`'s tenant via RLS.
  *
@@ -20,7 +25,7 @@ import type { PrismaClient } from "@/lib/generated/prisma/client";
  */
 export async function asEstablishmentUser<T>(
   userId: string,
-  callback: (tx: Omit<PrismaClient, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">) => Promise<T>
+  callback: (tx: ScopedTx) => Promise<T>
 ): Promise<T> {
   return prisma.$transaction(async (tx) => {
     await tx.$executeRaw`SET LOCAL ROLE authenticated`;
