@@ -23,9 +23,10 @@ model Establishment {
   averageBasketCents Int?     @map("average_basket_cents")
   createdAt DateTime @default(now()) @map("created_at")
 
-  users     EstablishmentUser[]
-  customers Customer[]
-  events    Event[]
+  users      EstablishmentUser[]
+  customers  Customer[]
+  events     Event[]
+  auditLogs  AuditLog[]
 
   @@map("establishments")
 }
@@ -73,7 +74,11 @@ model Customer {
 model Event {
   id              String   @id @default(uuid()) @db.Uuid
   establishmentId String   @map("establishment_id") @db.Uuid
-  customerId      String   @map("customer_id") @db.Uuid
+  // Nullable: right-to-erasure deletes the Customer row but keeps their
+  // events (SET NULL, not CASCADE) so establishment-wide aggregates don't
+  // develop holes just because one customer was forgotten. See
+  // lib/customers/erasure.ts.
+  customerId      String?  @map("customer_id") @db.Uuid
   // One of: visit, points_added, reward_redeemed, campaign_sent,
   // attributed_return (validated with Zod at the Server Action boundary,
   // not a DB enum, since later phases add more types).
@@ -82,9 +87,28 @@ model Event {
   createdAt       DateTime @default(now()) @map("created_at")
 
   establishment Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-  customer      Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer      Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
 
   @@index([customerId, createdAt])
   @@index([establishmentId, type, createdAt])
   @@map("events")
+}
+
+// Append-only audit trail of sensitive customer-data access (Phase 7 GDPR
+// requirement) — who viewed or erased which customer, and when. Same
+// immutability pattern as Event: INSERT only.
+model AuditLog {
+  id              String   @id @default(uuid()) @db.Uuid
+  establishmentId String   @map("establishment_id") @db.Uuid
+  actorUserId     String   @map("actor_user_id") @db.Uuid
+  // One of: viewed_customer, erased_customer
+  action          String
+  targetType      String   @map("target_type")
+  targetId        String   @map("target_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  establishment Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+
+  @@index([establishmentId, createdAt])
+  @@map("audit_logs")
 }

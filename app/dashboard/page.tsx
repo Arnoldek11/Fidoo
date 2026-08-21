@@ -110,7 +110,23 @@ export default async function DashboardPage() {
           >
             Voir les clients
           </a>
+          <a
+            href="/dashboard/audit"
+            className="inline-block rounded border border-zinc-300 px-4 py-2 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-900"
+          >
+            Journal d&apos;accès
+          </a>
         </div>
+
+        <p className="text-xs text-zinc-400">
+          <a href="/legal/privacy" className="hover:underline">
+            Politique de confidentialité
+          </a>{" "}
+          ·{" "}
+          <a href="/legal/terms" className="hover:underline">
+            Conditions d&apos;utilisation
+          </a>
+        </p>
       </div>
     </div>
   );

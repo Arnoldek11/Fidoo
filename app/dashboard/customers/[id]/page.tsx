@@ -1,11 +1,15 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCustomerHistory } from "@/lib/loyalty/stats";
+import { logAudit } from "@/lib/audit/log";
+import { DeleteCustomerButton } from "./DeleteCustomerButton";
 
 const EVENT_LABELS: Record<string, string> = {
   visit: "Visite",
   points_added: "Point ajouté",
   reward_redeemed: "Récompense échangée",
+  campaign_sent: "Campagne envoyée",
+  attributed_return: "Retour attribué à une campagne",
 };
 
 export default async function CustomerDetailPage({
@@ -24,6 +28,8 @@ export default async function CustomerDetailPage({
   const data = await getCustomerHistory(user.id, id);
   if (!data) notFound();
 
+  await logAudit(user.id, "viewed_customer", "customer", id);
+
   const { customer, events } = data;
 
   return (
@@ -41,10 +47,13 @@ export default async function CustomerDetailPage({
           </a>
         </div>
 
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          {customer.phone} — client depuis le{" "}
-          {customer.createdAt.toLocaleDateString("fr-BE")}
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            {customer.phone} — client depuis le{" "}
+            {customer.createdAt.toLocaleDateString("fr-BE")}
+          </p>
+          <DeleteCustomerButton customerId={customer.id} />
+        </div>
 
         <div className="space-y-2">
           <h2 className="text-sm font-semibold text-zinc-500">Historique</h2>

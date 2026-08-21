@@ -40,6 +40,19 @@ describe("customers/events RLS isolation", () => {
     expect(rows).toHaveLength(0);
   });
 
+  it("cannot erase another establishment's customer", async () => {
+    await expect(
+      asEstablishmentUser(cafeA.userId, (tx) =>
+        tx.customer.delete({ where: { id: cafeBCustomerId } })
+      )
+    ).rejects.toThrow();
+
+    const stillThere = await prisma.customer.findUnique({
+      where: { id: cafeBCustomerId },
+    });
+    expect(stillThere).not.toBeNull();
+  });
+
   it("cannot insert an event tagged with another establishment's id", async () => {
     await expect(
       asEstablishmentUser(cafeA.userId, (tx) =>
