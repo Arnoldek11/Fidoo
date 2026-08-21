@@ -19,7 +19,9 @@ model Establishment {
   plan      String   @default("pilote")
   createdAt DateTime @default(now()) @map("created_at")
 
-  users EstablishmentUser[]
+  users     EstablishmentUser[]
+  customers Customer[]
+  events    Event[]
 
   @@map("establishments")
 }
@@ -38,4 +40,44 @@ model EstablishmentUser {
 
   @@unique([establishmentId, email])
   @@map("establishment_users")
+}
+
+model Customer {
+  id                String    @id @default(uuid()) @db.Uuid
+  establishmentId   String    @map("establishment_id") @db.Uuid
+  phone             String
+  name              String?
+  // Nullable on purpose: a customer can be tracked (visits, points) without
+  // having consented to marketing communications. Phase 5's sender must
+  // check this is non-null before contacting anyone — see lib/customers/consent.ts.
+  consentGivenAt    DateTime? @map("consent_given_at")
+  consentChannel    String?   @map("consent_channel")
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  establishment Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  events        Event[]
+
+  @@unique([establishmentId, phone])
+  @@map("customers")
+}
+
+// Immutable append-only journal: INSERT only, never UPDATE/DELETE (enforced
+// both by RLS having no UPDATE/DELETE policy and by an explicit REVOKE in
+// the migration). Balances and stats are always computed from this table,
+// never stored as a field that gets mutated directly.
+model Event {
+  id              String   @id @default(uuid()) @db.Uuid
+  establishmentId String   @map("establishment_id") @db.Uuid
+  customerId      String   @map("customer_id") @db.Uuid
+  // One of: visit, points_added, reward_redeemed (validated with Zod at the
+  // Server Action boundary, not a DB enum, since later phases add more types).
+  type            String
+  metadata        Json     @default("{}")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  establishment Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  customer      Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId, createdAt])
+  @@map("events")
 }

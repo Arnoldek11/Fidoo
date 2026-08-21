@@ -44,6 +44,12 @@ export default async function DashboardPage() {
           {establishmentUser.establishment.city} —{" "}
           {establishmentUser.establishment.plan}
         </p>
+        <a
+          href="/dashboard/scan"
+          className="inline-block rounded bg-black px-4 py-2 text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+        >
+          Scanner un client
+        </a>
       </div>
     </div>
   );
