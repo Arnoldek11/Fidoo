@@ -54,7 +54,7 @@ export default async function CustomerDetailPage({
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-center gap-4">
           <span
             className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary-tint text-xl font-bold text-primary"
@@ -63,7 +63,7 @@ export default async function CustomerDetailPage({
             {initial}
           </span>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <h1 className="font-heading text-xl font-bold text-[#3A322B]">
                 {customer.name ?? customer.phone}
               </h1>
@@ -75,7 +75,7 @@ export default async function CustomerDetailPage({
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <ReverseVisitButton customerId={customer.id} />
           <DeleteCustomerButton customerId={customer.id} />
         </div>
