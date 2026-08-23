@@ -11,10 +11,10 @@ function SidebarLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => v
 
   if (item.soon) {
     return (
-      <div className="flex items-center gap-2.5 rounded-[10px] px-3 py-2 text-sm text-muted-foreground/60">
-        <item.icon className="size-[18px] shrink-0" strokeWidth={1.75} />
+      <div className="flex items-center gap-2.5 rounded-2xl px-3.5 py-2.5 text-sm font-semibold text-[#B0A290]">
+        <item.icon className="size-[18px] shrink-0" strokeWidth={2} />
         <span className="flex-1">{item.label}</span>
-        <Badge variant="outline" className="border-border/70 text-[10px] text-muted-foreground/70">
+        <Badge variant="outline" className="border-[#F0E4D3] text-[10px] text-[#B0A290]">
           Bientôt
         </Badge>
       </div>
@@ -26,13 +26,13 @@ function SidebarLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => v
       href={item.href}
       onClick={onNavigate}
       className={cn(
-        "flex items-center gap-2.5 rounded-[10px] px-3 py-2 text-sm font-medium transition-colors",
+        "flex items-center gap-2.5 rounded-2xl px-3.5 py-2.5 text-sm font-semibold transition-all",
         active
-          ? "bg-accent text-accent-foreground"
-          : "text-foreground/80 hover:bg-muted hover:text-foreground"
+          ? "bg-primary text-white shadow-[0_6px_16px_rgba(255,90,95,0.3)]"
+          : "text-[#6B5F52] hover:bg-white"
       )}
     >
-      <item.icon className="size-[18px] shrink-0" strokeWidth={1.75} />
+      <item.icon className="size-[18px] shrink-0" strokeWidth={2} />
       {item.label}
     </a>
   );
@@ -41,12 +41,12 @@ function SidebarLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => v
 export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <nav className="flex flex-1 flex-col gap-6 overflow-y-auto px-3 py-2">
-      <div className="space-y-0.5">
+      <div className="space-y-1">
         {NAV_ITEMS.map((item) => (
           <SidebarLink key={item.href} item={item} onNavigate={onNavigate} />
         ))}
       </div>
-      <div className="space-y-0.5 border-t border-border pt-3">
+      <div className="space-y-1 border-t border-[#F0E4D3] pt-3">
         {NAV_ITEMS_SECONDARY.map((item) => (
           <SidebarLink key={item.href} item={item} onNavigate={onNavigate} />
         ))}

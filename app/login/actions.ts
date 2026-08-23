@@ -23,7 +23,11 @@ export async function login(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
 
   if (error) {
-    redirect("/login?error=credentials");
+    // A network-level failure (e.g. the 8s fetch timeout in
+    // lib/supabase/fetch-with-timeout.ts) surfaces as AuthRetryableFetchError,
+    // not a rejected password — don't tell the user their credentials are
+    // wrong when the real problem is connectivity.
+    redirect(error.name === "AuthRetryableFetchError" ? "/login?error=network" : "/login?error=credentials");
   }
 
   redirect("/dashboard");

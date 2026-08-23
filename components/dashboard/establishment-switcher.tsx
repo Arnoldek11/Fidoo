@@ -8,11 +8,14 @@ import { ChevronDown } from "lucide-react";
  */
 export function EstablishmentSwitcher({ name, city }: { name: string; city: string }) {
   return (
-    <div className="flex items-center justify-between gap-2 rounded-[10px] px-3 py-2 text-sm">
-      <span className="truncate font-medium text-foreground">
-        {name} <span className="font-normal text-muted-foreground">— {city}</span>
+    <div
+      className="flex items-center justify-between gap-2 rounded-2xl bg-white px-3.5 py-3 text-sm"
+      style={{ boxShadow: "0 2px 10px rgba(74,64,56,0.05)" }}
+    >
+      <span className="truncate font-semibold text-[#3A322B]">
+        {name} <span className="font-medium text-[#8A7D6C]">— {city}</span>
       </span>
-      <ChevronDown className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.75} />
+      <ChevronDown className="size-4 shrink-0 text-[#8A7D6C]" strokeWidth={2} />
     </div>
   );
 }

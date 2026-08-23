@@ -8,6 +8,7 @@ import { Logo } from "@/components/logo";
 const ERROR_MESSAGES: Record<string, string> = {
   invalid: "Merci de renseigner un email et un mot de passe valides.",
   credentials: "Email ou mot de passe incorrect.",
+  network: "Connexion lente ou instable — merci de réessayer.",
 };
 
 export default async function LoginPage({

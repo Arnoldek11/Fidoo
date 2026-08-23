@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { fetchWithTimeout } from "./fetch-with-timeout";
 
 const PROTECTED_PREFIXES = ["/dashboard"];
 
@@ -24,14 +25,16 @@ export async function updateSession(request: NextRequest) {
           }
         },
       },
+      global: { fetch: fetchWithTimeout },
     }
   );
 
   // Do not run any code between createServerClient and getUser — it refreshes
   // the session token, and skipping it can randomly log users out.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await supabase.auth
+    .getUser()
+    .then(({ data }) => data.user)
+    .catch(() => null);
 
   const isProtected = PROTECTED_PREFIXES.some((prefix) =>
     request.nextUrl.pathname.startsWith(prefix)

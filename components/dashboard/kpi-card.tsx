@@ -24,21 +24,24 @@ export function KpiCard({
   const negative = deltaPct !== null && deltaPct < 0;
 
   return (
-    <Card className="border border-border shadow-[0_1px_2px_rgba(0,0,0,0.03)] [--card-spacing:--spacing(6)]">
+    <Card
+      className="rounded-[22px] border-none bg-white [--card-spacing:--spacing(5)]"
+      style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
+    >
       <CardContent>
-        <p className="text-sm text-muted-foreground">{label}</p>
-        <p className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
+        <p className="text-[13px] font-semibold text-[#8A7D6C]">{label}</p>
+        <p className="font-heading mt-2 text-3xl font-bold tracking-tight text-[#3A322B]">
           {formatValue(value, percent)}
         </p>
         {deltaPct === null ? (
-          <p className="mt-1.5 text-sm text-muted-foreground/60">Pas de comparaison</p>
+          <p className="mt-1.5 text-sm font-medium text-[#B0A290]">Pas de comparaison</p>
         ) : (
           <p
             className={cn(
-              "mt-1.5 flex items-center gap-1 text-sm font-medium",
+              "mt-1.5 flex items-center gap-1 text-sm font-bold",
               positive && "text-success",
               negative && "text-error",
-              !positive && !negative && "text-muted-foreground"
+              !positive && !negative && "text-[#8A7D6C]"
             )}
           >
             {positive && <ArrowUp className="size-3.5" strokeWidth={2.5} />}

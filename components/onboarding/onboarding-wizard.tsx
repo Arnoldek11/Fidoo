@@ -180,11 +180,11 @@ export function OnboardingWizard({
                 <Download />
                 Télécharger mon QR
               </Button>
-              <Button variant="outline" render={<a href="/dashboard/qr-nfc" />}>
+              <Button variant="outline" nativeButton={false} render={<a href="/dashboard/qr-nfc" />}>
                 <Nfc />
                 Configurer NFC
               </Button>
-              <Button variant="outline" render={<a href="/dashboard" />}>
+              <Button variant="outline" nativeButton={false} render={<a href="/dashboard" />}>
                 Voir mon dashboard
               </Button>
             </div>

@@ -52,14 +52,18 @@ export default async function DashboardPage({
     <div className="space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Bonjour 👋</h1>
-          <p className="mt-1 text-muted-foreground">
+          <h1 className="font-heading text-2xl font-bold tracking-tight text-[#3A322B]">Bonjour</h1>
+          <p className="mt-1 font-medium text-[#8A7D6C]">
             Voici ce qui se passe chez {establishmentUser.establishment.name} aujourd&apos;hui.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <PeriodSelect period={period} />
-          <Button render={<a href="/dashboard/campaigns" />}>
+          <Button
+            render={<a href="/dashboard/campaigns" />}
+            nativeButton={false}
+            className="rounded-full px-4 shadow-[0_8px_18px_rgba(255,90,95,0.32)]"
+          >
             <Plus />
             Créer une campagne
           </Button>

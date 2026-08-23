@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Nunito_Sans, Bricolage_Grotesque } from "next/font/google";
 import { Logo } from "@/components/logo";
 import { HeroPreview } from "@/components/landing/hero-preview";
 import { BrowserFrame } from "@/components/landing/browser-frame";
@@ -14,15 +13,6 @@ import {
   UserCheck,
   Check,
 } from "lucide-react";
-
-const bricolage = Bricolage_Grotesque({
-  subsets: ["latin"],
-  variable: "--font-landing-display",
-});
-const nunito = Nunito_Sans({
-  subsets: ["latin"],
-  variable: "--font-landing-body",
-});
 
 const FEATURES = [
   {
@@ -68,10 +58,7 @@ const PLAN_FEATURES = [
 
 export default function Home() {
   return (
-    <div
-      className={`${bricolage.variable} ${nunito.variable} flex min-h-screen flex-col`}
-      style={{ background: "#FBF6EF", fontFamily: "var(--font-landing-body)" }}
-    >
+    <div className="flex min-h-screen flex-col" style={{ background: "#FBF6EF" }}>
       <header className="px-6 pt-8">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
           <Link href="/" className="flex items-center">
@@ -114,10 +101,7 @@ export default function Home() {
                 Pour cafés, boulangeries &amp; restaurants
               </span>
             </div>
-            <h1
-              className="text-4xl leading-[1.05] font-bold tracking-tight text-[#3A322B] sm:text-5xl lg:text-[64px]"
-              style={{ fontFamily: "var(--font-landing-display)" }}
-            >
+            <h1 className="font-heading text-4xl leading-[1.05] font-bold tracking-tight text-[#3A322B] sm:text-5xl lg:text-[64px]">
               Faites revenir vos clients.
             </h1>
             <p className="mt-6 max-w-md text-lg leading-relaxed font-medium text-[#6B5F52]">
@@ -150,10 +134,7 @@ export default function Home() {
 
       <section id="produit" className="py-20">
         <div className="mx-auto max-w-5xl px-6">
-          <h2
-            className="text-center text-2xl font-bold tracking-tight text-[#3A322B] sm:text-3xl"
-            style={{ fontFamily: "var(--font-landing-display)" }}
-          >
+          <h2 className="font-heading text-center text-2xl font-bold tracking-tight text-[#3A322B] sm:text-3xl">
             Un système de fidélité, pas juste une carte à points
           </h2>
           <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -181,10 +162,7 @@ export default function Home() {
 
       <section id="comment-ca-marche" className="py-20">
         <div className="mx-auto max-w-5xl px-6">
-          <h2
-            className="text-center text-2xl font-bold tracking-tight text-[#3A322B] sm:text-3xl"
-            style={{ fontFamily: "var(--font-landing-display)" }}
-          >
+          <h2 className="font-heading text-center text-2xl font-bold tracking-tight text-[#3A322B] sm:text-3xl">
             Aussi simple qu&apos;un tap
           </h2>
           <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
@@ -208,10 +186,7 @@ export default function Home() {
 
       <section id="tarifs" className="py-20">
         <div className="mx-auto max-w-5xl px-6">
-          <h2
-            className="text-center text-2xl font-bold tracking-tight text-[#3A322B] sm:text-3xl"
-            style={{ fontFamily: "var(--font-landing-display)" }}
-          >
+          <h2 className="font-heading text-center text-2xl font-bold tracking-tight text-[#3A322B] sm:text-3xl">
             Tarifs
           </h2>
           <p className="mx-auto mt-2 max-w-md text-center font-medium text-[#8A7D6C]">
@@ -223,12 +198,7 @@ export default function Home() {
           >
             <p className="font-bold text-[#3A322B]">Fidoo</p>
             <p className="mt-1">
-              <span
-                className="text-4xl font-bold text-[#3A322B]"
-                style={{ fontFamily: "var(--font-landing-display)" }}
-              >
-                49€
-              </span>
+              <span className="font-heading text-4xl font-bold text-[#3A322B]">49€</span>
               <span className="font-medium text-[#8A7D6C]"> /mois par établissement</span>
             </p>
             <ul className="mt-6 space-y-3">

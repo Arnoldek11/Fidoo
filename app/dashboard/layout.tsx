@@ -30,22 +30,22 @@ export default async function DashboardLayout({
   const { establishment } = establishmentUser;
 
   return (
-    <div className="min-h-screen bg-background md:flex">
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-card md:flex">
-        <div className="flex flex-col gap-4 px-4 pt-5 pb-3">
-          <a href="/dashboard" className="px-1">
+    <div className="min-h-screen md:flex" style={{ background: "#FBF6EF" }}>
+      <aside className="hidden w-64 shrink-0 flex-col md:flex">
+        <div className="flex flex-col gap-4 px-4 pt-6 pb-3">
+          <a href="/dashboard" className="px-2">
             <Logo className="h-4 w-auto" />
           </a>
           <EstablishmentSwitcher name={establishment.name} city={establishment.city} />
         </div>
         <SidebarNav />
-        <div className="border-t border-border p-3">
+        <div className="p-3">
           <form action={logout}>
             <button
               type="submit"
-              className="flex w-full items-center gap-2.5 rounded-[10px] px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="flex w-full items-center gap-2.5 rounded-2xl px-3.5 py-2.5 text-sm font-semibold text-[#8A7D6C] hover:bg-white hover:text-[#3A322B]"
             >
-              <LogOut className="size-[18px]" strokeWidth={1.75} />
+              <LogOut className="size-[18px]" strokeWidth={2} />
               Se déconnecter
             </button>
           </form>

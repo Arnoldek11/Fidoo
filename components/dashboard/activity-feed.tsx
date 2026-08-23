@@ -31,26 +31,31 @@ function describe(item: ActivityFeedItem): { icon: LucideIcon; text: string } {
 
 export function ActivityFeed({ items }: { items: ActivityFeedItem[] }) {
   return (
-    <Card className="border border-border shadow-[0_1px_2px_rgba(0,0,0,0.03)] [--card-spacing:--spacing(6)]">
-      <CardHeader className="border-b border-border pb-4">
-        <CardTitle className="text-base">Activité en direct</CardTitle>
+    <Card
+      className="rounded-[24px] border-none bg-white [--card-spacing:--spacing(5.5)]"
+      style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
+    >
+      <CardHeader>
+        <CardTitle className="font-heading text-base font-bold text-[#3A322B]">
+          Activité en direct
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {items.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">
+          <p className="py-6 text-center text-sm font-medium text-[#8A7D6C]">
             Pas encore d&apos;activité à afficher.
           </p>
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-[#F6ECDD]">
             {items.map((item) => {
               const { icon: Icon, text } = describe(item);
               return (
                 <li key={item.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-tint text-primary">
-                    <Icon className="size-4" strokeWidth={1.75} />
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary-tint text-primary">
+                    <Icon className="size-4" strokeWidth={2} />
                   </span>
-                  <span className="flex-1 text-sm text-foreground">{text}</span>
-                  <span className="shrink-0 text-xs text-muted-foreground">
+                  <span className="flex-1 text-sm font-semibold text-[#3A322B]">{text}</span>
+                  <span className="shrink-0 text-xs font-medium text-[#B0A290]">
                     {relativeTime(item.createdAt)}
                   </span>
                 </li>

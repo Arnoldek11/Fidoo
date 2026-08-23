@@ -56,13 +56,22 @@ export function ActivityChart({ data }: { data: ActivityPoint[] }) {
   const activeMetric = METRICS.find((m) => m.value === metric)!;
 
   return (
-    <Card className="border border-border shadow-[0_1px_2px_rgba(0,0,0,0.03)] [--card-spacing:--spacing(6)]">
-      <CardHeader className="flex-row items-center justify-between gap-4 border-b border-border pb-4">
-        <CardTitle className="text-base">Activité fidélité</CardTitle>
+    <Card
+      className="rounded-[24px] border-none bg-white [--card-spacing:--spacing(5.5)]"
+      style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
+    >
+      <CardHeader className="flex-row items-center justify-between gap-4">
+        <CardTitle className="font-heading text-base font-bold text-[#3A322B]">
+          Activité fidélité
+        </CardTitle>
         <Tabs value={metric} onValueChange={(v) => v && setMetric(v as MetricKey)}>
-          <TabsList>
+          <TabsList className="rounded-full bg-[#F6ECDD] p-1">
             {METRICS.map((m) => (
-              <TabsTrigger key={m.value} value={m.value}>
+              <TabsTrigger
+                key={m.value}
+                value={m.value}
+                className="rounded-full font-semibold data-active:bg-white data-active:shadow-[0_2px_6px_rgba(74,64,56,0.08)]"
+              >
                 {m.label}
               </TabsTrigger>
             ))}

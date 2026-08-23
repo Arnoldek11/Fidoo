@@ -23,7 +23,7 @@ export function PeriodSelect({ period }: { period: number }) {
 
   return (
     <Select value={String(period)} onValueChange={onValueChange}>
-      <SelectTrigger className="h-9 rounded-[10px] border-border bg-card text-sm">
+      <SelectTrigger className="h-9 rounded-full border-transparent bg-white text-sm font-semibold text-[#4A4038] shadow-[0_2px_10px_rgba(74,64,56,0.06)]">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
