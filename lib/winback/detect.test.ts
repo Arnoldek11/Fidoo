@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
 import { prisma } from "@/lib/prisma";
-import { findWinbackTargets } from "@/lib/winback/detect";
+import { findWinbackTargets, getWinbackEligibleCount } from "@/lib/winback/detect";
 import { RISK_THRESHOLD_DAYS } from "@/lib/loyalty/stats";
 
 function daysAgo(days: number): Date {
@@ -121,5 +121,73 @@ describe("findWinbackTargets", () => {
 
     const targets = await findWinbackTargets();
     expect(targets.some((t) => t.customerId === customer.id)).toBe(true);
+  });
+});
+
+describe("getWinbackEligibleCount", () => {
+  let userId: string;
+  let establishmentId: string;
+  let customerId: string | undefined;
+
+  beforeAll(async () => {
+    const a = await prisma.establishmentUser.findFirstOrThrow({
+      where: { email: "cafe-a@test.fidoo.app" },
+    });
+    userId = a.id;
+    establishmentId = a.establishmentId;
+  });
+
+  afterEach(async () => {
+    if (customerId) {
+      await prisma.customer.delete({ where: { id: customerId } }).catch(() => {});
+      customerId = undefined;
+    }
+  });
+
+  it("matches the same eligibility rule as the nightly cron's findWinbackTargets", async () => {
+    const before = await getWinbackEligibleCount(userId);
+
+    const customer = await prisma.customer.create({
+      data: {
+        establishmentId,
+        phone: "+32ELIGIBLE001",
+        consentGivenAt: new Date(),
+        consentChannel: "test",
+      },
+    });
+    customerId = customer.id;
+    await prisma.event.create({
+      data: {
+        establishmentId,
+        customerId: customer.id,
+        type: "visit",
+        metadata: {},
+        createdAt: new Date(Date.now() - (RISK_THRESHOLD_DAYS + 1) * 24 * 60 * 60 * 1000),
+      },
+    });
+
+    const after = await getWinbackEligibleCount(userId);
+    expect(after).toBe(before + 1);
+  });
+
+  it("excludes a customer without consent, matching findWinbackTargets", async () => {
+    const before = await getWinbackEligibleCount(userId);
+
+    const customer = await prisma.customer.create({
+      data: { establishmentId, phone: "+32ELIGIBLE002" },
+    });
+    customerId = customer.id;
+    await prisma.event.create({
+      data: {
+        establishmentId,
+        customerId: customer.id,
+        type: "visit",
+        metadata: {},
+        createdAt: new Date(Date.now() - (RISK_THRESHOLD_DAYS + 1) * 24 * 60 * 60 * 1000),
+      },
+    });
+
+    const after = await getWinbackEligibleCount(userId);
+    expect(after).toBe(before);
   });
 });
