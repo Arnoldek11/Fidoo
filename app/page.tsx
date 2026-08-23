@@ -1,14 +1,21 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Logo } from "@/components/logo";
+import { HeroPreview } from "@/components/landing/hero-preview";
+import { BrowserFrame } from "@/components/landing/browser-frame";
 import {
-  Coffee,
   Users,
   Smartphone,
   ScanLine,
   AlertTriangle,
   Megaphone,
   ArrowRight,
+  SmartphoneNfc,
+  Wallet,
+  UserCheck,
+  CheckCircle2,
 } from "lucide-react";
 
 const FEATURES = [
@@ -38,135 +45,129 @@ const FEATURES = [
   },
 ];
 
-const PLANS = [
-  {
-    name: "Pilote",
-    price: "0–19€",
-    period: "/mois, 60-90 jours",
-    description: "Pour les 5 à 10 premiers établissements, en échange d'un retour d'expérience.",
-    features: ["Tout le plan Standard", "Accompagnement direct"],
-  },
-  {
-    name: "Standard",
-    price: "49€",
-    period: "/mois",
-    description: "Café ou boulangerie indépendant.",
-    features: ["Points & carte wallet", "1 automatisation (réactivation)"],
-    highlighted: true,
-  },
-  {
-    name: "Growth",
-    price: "89-99€",
-    period: "/mois",
-    description: "Restaurant établi, volume élevé.",
-    features: ["Tout Standard", "Anniversaire / VIP", "WhatsApp, exports"],
-  },
+const STEPS = [
+  { icon: SmartphoneNfc, label: "Le client scanne un QR ou tape son téléphone" },
+  { icon: Wallet, label: "Sa carte Wallet s'ouvre instantanément" },
+  { icon: UserCheck, label: "Il rejoint votre programme, sans rien installer" },
+];
+
+const PLAN_FEATURES = [
+  "Carte de fidélité Apple & Google Wallet",
+  "QR et NFC pour rejoindre en un tap",
+  "Scan en caisse depuis le navigateur",
+  "Détection automatique des clients à risque",
+  "Réactivation automatique par SMS",
+  "Tableau de bord et statistiques",
 ];
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="border-b border-white/10 bg-neutral-950">
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <a href="/" className="flex items-center gap-2 font-semibold text-white">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              F
-            </span>
-            Fidoo
-          </a>
-          <nav className="hidden items-center gap-6 text-sm text-neutral-300 sm:flex">
-            <a href="#fonctionnalites" className="hover:text-white">
-              Fonctionnalités
+          <Link href="/" className="flex items-center">
+            <Logo className="h-5 w-auto" />
+          </Link>
+          <nav className="hidden items-center gap-6 text-sm text-muted-foreground sm:flex">
+            <a href="#produit" className="hover:text-foreground">
+              Produit
             </a>
-            <a href="#tarifs" className="hover:text-white">
+            <a href="#tarifs" className="hover:text-foreground">
               Tarifs
             </a>
+            <a href="#comment-ca-marche" className="hover:text-foreground">
+              Pour les restaurants
+            </a>
           </nav>
-          <Button render={<a href="/login" />} variant="secondary">
-            Se connecter
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button render={<a href="/login" />} variant="outline" size="sm">
+              Se connecter
+            </Button>
+            <Button render={<a href="/login" />} size="sm">
+              Essayer gratuitement
+            </Button>
+          </div>
         </div>
       </header>
 
-      <section className="relative overflow-hidden bg-neutral-950 text-white">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-40"
-          style={{
-            background:
-              "radial-gradient(600px circle at 20% 20%, color-mix(in oklch, var(--primary), transparent 70%), transparent 60%), radial-gradient(500px circle at 85% 30%, color-mix(in oklch, var(--coral), transparent 75%), transparent 60%)",
-          }}
-        />
-        <div className="relative mx-auto grid max-w-5xl grid-cols-1 items-center gap-12 px-6 py-20 lg:grid-cols-2 lg:py-28">
+      <section className="bg-background">
+        <div className="mx-auto grid max-w-5xl grid-cols-1 items-center gap-16 px-6 py-20 lg:grid-cols-2 lg:py-28">
           <div className="space-y-6">
-            <Badge className="bg-white/10 text-white">
+            <Badge className="border-transparent bg-primary-tint text-primary">
               Pour cafés, boulangeries &amp; restaurants
             </Badge>
-            <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-              La fidélité qui prouve son retour sur investissement
+            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+              Faites revenir vos clients.
             </h1>
-            <p className="max-w-lg text-lg text-neutral-300">
-              Fidoo ne se contente pas de compter des visites — elle vous
-              montre combien de clients et de chiffre d&apos;affaires elle
-              vous ramène. Sans app à faire télécharger à vos clients.
+            <p className="max-w-lg text-lg text-muted-foreground">
+              Une carte de fidélité que vos clients gardent dans leur téléphone, et un tableau
+              de bord qui vous dit qui revient — sans app à faire télécharger.
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div>
               <Button size="lg" render={<a href="/login" />}>
-                Se connecter
+                Créer mon programme
                 <ArrowRight />
               </Button>
-              <Button size="lg" variant="outline" render={<a href="#fonctionnalites" />}
-                className="border-white/20 bg-transparent text-white hover:bg-white/10">
-                Voir comment ça marche
-              </Button>
+              <p className="mt-2 text-sm text-muted-foreground">Aucune carte bancaire requise</p>
             </div>
           </div>
 
-          <div className="mx-auto w-full max-w-xs -rotate-3 rounded-2xl border border-white/10 bg-neutral-900 p-6 shadow-2xl">
-            <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">
-              Café Exemple
-            </p>
-            <p className="mt-1 text-lg font-semibold">Marie</p>
-            <div className="mt-4 grid grid-cols-5 gap-2">
-              {Array.from({ length: 10 }, (_, i) => (
-                <div
-                  key={i}
-                  className={
-                    i < 6
-                      ? "flex aspect-square items-center justify-center rounded-full border-2 border-primary bg-primary/20 text-primary"
-                      : "flex aspect-square items-center justify-center rounded-full border-2 border-dashed border-neutral-700 text-neutral-700"
-                  }
-                >
-                  <Coffee className="size-3.5" />
-                </div>
-              ))}
-            </div>
-            <p className="mt-3 text-sm text-neutral-400">
-              6 / 10 — plus que 4 avant votre café gratuit
-            </p>
-          </div>
+          <HeroPreview />
         </div>
       </section>
 
-      <section id="fonctionnalites" className="bg-background py-20">
+      <section className="bg-background pb-20">
+        <div className="mx-auto max-w-4xl px-6">
+          <BrowserFrame
+            src="/landing-dashboard-preview.png"
+            alt="Tableau de bord Fidoo : clients fidèles, visites, récompenses et activité en direct"
+            width={1440}
+            height={900}
+          />
+        </div>
+      </section>
+
+      <section id="produit" className="bg-muted/30 py-20">
         <div className="mx-auto max-w-5xl px-6">
-          <h2 className="text-center text-2xl font-semibold sm:text-3xl">
+          <h2 className="text-center text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             Un système de fidélité, pas juste une carte à points
           </h2>
           <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2">
             {FEATURES.map((feature) => (
-              <Card key={feature.title}>
+              <Card
+                key={feature.title}
+                className="border border-border shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
+              >
                 <CardContent className="flex gap-4">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-tint text-primary">
                     <feature.icon className="size-5" />
                   </div>
                   <div>
-                    <p className="font-semibold">{feature.title}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {feature.description}
-                    </p>
+                    <p className="font-semibold text-foreground">{feature.title}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{feature.description}</p>
                   </div>
                 </CardContent>
               </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="comment-ca-marche" className="bg-background py-20">
+        <div className="mx-auto max-w-5xl px-6">
+          <h2 className="text-center text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Aussi simple qu&apos;un tap
+          </h2>
+          <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-3">
+            {STEPS.map((step, i) => (
+              <div key={step.label} className="flex flex-col items-center gap-3 text-center">
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary-tint text-primary">
+                  <step.icon className="size-6" strokeWidth={1.75} />
+                </span>
+                <p className="text-sm text-foreground">
+                  <span className="font-medium">{i + 1}.</span> {step.label}
+                </p>
+              </div>
             ))}
           </div>
         </div>
@@ -174,43 +175,38 @@ export default function Home() {
 
       <section id="tarifs" className="bg-muted/30 py-20">
         <div className="mx-auto max-w-5xl px-6">
-          <h2 className="text-center text-2xl font-semibold sm:text-3xl">Tarifs</h2>
-          <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
-            {PLANS.map((plan) => (
-              <Card
-                key={plan.name}
-                className={plan.highlighted ? "border-coral shadow-lg" : undefined}
-              >
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <p className="font-semibold">{plan.name}</p>
-                    {plan.highlighted && (
-                      <Badge className="bg-coral text-coral-foreground">
-                        Populaire
-                      </Badge>
-                    )}
-                  </div>
-                  <p>
-                    <span className="text-3xl font-semibold">{plan.price}</span>
-                    <span className="text-sm text-muted-foreground">{plan.period}</span>
-                  </p>
-                  <p className="text-sm text-muted-foreground">{plan.description}</p>
-                  <ul className="space-y-1.5 text-sm">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2">
-                        <span className="size-1 rounded-full bg-primary" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <h2 className="text-center text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Tarifs
+          </h2>
+          <p className="mx-auto mt-2 max-w-md text-center text-muted-foreground">
+            Un seul plan, tout compris. Pas de paliers compliqués à comparer.
+          </p>
+          <Card className="mx-auto mt-10 max-w-md border border-border shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+            <CardContent className="space-y-6">
+              <div>
+                <p className="font-semibold text-foreground">Fidoo</p>
+                <p className="mt-1">
+                  <span className="text-4xl font-semibold text-foreground">49€</span>
+                  <span className="text-muted-foreground"> /mois par établissement</span>
+                </p>
+              </div>
+              <ul className="space-y-2.5 text-sm">
+                {PLAN_FEATURES.map((f) => (
+                  <li key={f} className="flex items-center gap-2 text-foreground">
+                    <CheckCircle2 className="size-4 shrink-0 text-primary" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Button size="lg" className="w-full" render={<a href="/login" />}>
+                Essayer gratuitement
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
-      <footer className="border-t bg-background py-8">
+      <footer className="border-t border-border bg-background py-8">
         <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 px-6 text-sm text-muted-foreground sm:flex-row">
           <span className="flex items-center gap-2">
             <Users className="size-4" />

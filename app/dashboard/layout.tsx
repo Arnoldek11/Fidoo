@@ -1,17 +1,12 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { asEstablishmentUser } from "@/lib/db/scoped";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, QrCode, ScrollText, LogOut } from "lucide-react";
+import { Logo } from "@/components/logo";
+import { SidebarNav } from "@/components/dashboard/sidebar-nav";
+import { EstablishmentSwitcher } from "@/components/dashboard/establishment-switcher";
+import { MobileNav } from "@/components/dashboard/mobile-nav";
+import { LogOut } from "lucide-react";
 import { logout } from "./actions";
-
-const NAV_LINKS = [
-  { href: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
-  { href: "/dashboard/customers", label: "Clients", icon: Users },
-  { href: "/dashboard/scan", label: "Scanner", icon: QrCode },
-  { href: "/dashboard/audit", label: "Journal d'accès", icon: ScrollText },
-];
 
 export default async function DashboardLayout({
   children,
@@ -32,71 +27,55 @@ export default async function DashboardLayout({
   );
   if (!establishmentUser) redirect("/login?error=no-establishment");
 
+  const { establishment } = establishmentUser;
+
   return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="border-b bg-background">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-6">
-            <a href="/dashboard" className="flex items-center gap-2 font-semibold">
-              <span className="flex size-7 items-center justify-center rounded-md bg-primary text-sm text-primary-foreground">
-                F
-              </span>
-              {establishmentUser.establishment.name}
-            </a>
-            <nav className="hidden items-center gap-1 sm:flex">
-              {NAV_LINKS.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className={cn(
-                    buttonVariants({ variant: "ghost", size: "sm" }),
-                    "gap-1.5 text-muted-foreground"
-                  )}
-                >
-                  <link.icon className="size-4" />
-                  {link.label}
-                </a>
-              ))}
-            </nav>
-          </div>
+    <div className="min-h-screen bg-background md:flex">
+      <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-card md:flex">
+        <div className="flex flex-col gap-4 px-4 pt-5 pb-3">
+          <a href="/dashboard" className="px-1">
+            <Logo className="h-4 w-auto" />
+          </a>
+          <EstablishmentSwitcher name={establishment.name} city={establishment.city} />
+        </div>
+        <SidebarNav />
+        <div className="border-t border-border p-3">
           <form action={logout}>
             <button
               type="submit"
-              className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-1.5")}
+              className="flex w-full items-center gap-2.5 rounded-[10px] px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
             >
-              <LogOut className="size-4" />
+              <LogOut className="size-[18px]" strokeWidth={1.75} />
               Se déconnecter
             </button>
           </form>
         </div>
-        <nav className="flex items-center gap-1 overflow-x-auto border-t px-4 py-1.5 sm:hidden">
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "sm" }),
-                "shrink-0 gap-1.5 text-muted-foreground"
-              )}
-            >
-              <link.icon className="size-4" />
-              {link.label}
-            </a>
-          ))}
-        </nav>
-      </header>
+      </aside>
 
-      <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">{children}</main>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="flex items-center justify-between border-b border-border bg-card px-4 py-3 md:hidden">
+          <a href="/dashboard">
+            <Logo className="h-4 w-auto" />
+          </a>
+          <MobileNav establishmentName={establishment.name} establishmentCity={establishment.city} />
+        </header>
 
-      <footer className="mx-auto max-w-4xl px-4 pb-8 text-xs text-muted-foreground sm:px-6">
-        <a href="/legal/privacy" className="hover:underline">
-          Politique de confidentialité
-        </a>{" "}
-        ·{" "}
-        <a href="/legal/terms" className="hover:underline">
-          Conditions d&apos;utilisation
-        </a>
-      </footer>
+        <main className="flex-1">
+          <div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6 md:px-8 md:py-10 lg:px-10">
+            {children}
+          </div>
+        </main>
+
+        <footer className="mx-auto w-full max-w-[1400px] px-4 pb-8 text-xs text-muted-foreground sm:px-6 md:px-8 lg:px-10">
+          <a href="/legal/privacy" className="hover:underline">
+            Politique de confidentialité
+          </a>{" "}
+          ·{" "}
+          <a href="/legal/terms" className="hover:underline">
+            Conditions d&apos;utilisation
+          </a>
+        </footer>
+      </div>
     </div>
   );
 }

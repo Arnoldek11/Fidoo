@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/logo";
 
 const ERROR_MESSAGES: Record<string, string> = {
   invalid: "Merci de renseigner un email et un mot de passe valides.",
@@ -20,9 +21,7 @@ export default async function LoginPage({
     <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="items-center text-center">
-          <span className="mb-2 flex size-10 items-center justify-center rounded-lg bg-primary text-lg font-semibold text-primary-foreground">
-            F
-          </span>
+          <Logo className="mb-3 h-6 w-auto" />
           <CardTitle className="text-xl">Connexion établissement</CardTitle>
         </CardHeader>
         <CardContent>
