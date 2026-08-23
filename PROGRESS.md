@@ -56,9 +56,9 @@ Direction: **"soft & tactile"** — warm off-white, rounded-24-28px cards with r
 
 All converted 2026-08-23 (night), visually confirmed by Arnold on `localhost:3100` the same night, then committed and pushed.
 
-**Deliberately not converted:** `/login` — outside what Arnold asked for this session; still the plain shadcn `Card`. Worth doing whenever another dashboard-adjacent pass happens, for full consistency.
+- `/login` — converted 2026-08-23 (night).
 
-**Also stale**: `public/landing-dashboard-preview.png` (the screenshot embedded in the landing page) still shows the *old* dashboard style — now that the whole dashboard is converted, this can be re-captured from a real logged-in session.
+**Still stale**: `public/landing-dashboard-preview.png` (the screenshot embedded in the landing page) still shows the *old* dashboard style. Re-capturing it needs a real authenticated screenshot at 1440×900 of `/dashboard`, which needs either working Supabase credentials handed to Claude Code for a headless-browser capture, or Arnold capturing it himself and sending the file — deliberately skipped for now (2026-08-23), Arnold's call to revisit.
 
 ---
 
@@ -78,7 +78,7 @@ All converted 2026-08-23 (night), visually confirmed by Arnold on `localhost:310
 
 - **Current task:** Frontend redesign pass — **done**. Every sidebar page plus onboarding/public flows are converted, confirmed, committed, and pushed. Only `/login` remains in the old style (out of scope this session).
 - **Blocked on:** nothing. Stripe (Phase 6) and real Wallet issuance (Phase 4.5) remain untriggered/deferred as before.
-- **Next logical step:** no more redesign work queued — logical next steps are Phase 8's remaining gaps (Supabase backup/restore test, first real pilot, both need Arnold directly), converting `/login` for full consistency, or re-capturing `public/landing-dashboard-preview.png` now that the dashboard it depicts is actually up to date. No hard dependency between any of these — Arnold's call on what's next.
+- **Next logical step:** Arnold chose to start Phase 6 (Stripe billing) next, with Claude Code walking him through every setup step (Stripe account, API keys, webhook, env vars) since this is new territory for the project. Re-capturing `public/landing-dashboard-preview.png` was explicitly deferred (needs an authenticated screenshot Arnold or working credentials would have to provide). Phase 8 gaps (backup/restore test, first real pilot) remain open and still need Arnold directly.
 
 ---
 
@@ -123,8 +123,7 @@ All converted 2026-08-23 (night), visually confirmed by Arnold on `localhost:310
 | No real pilot establishment accounts yet | Medium | Onboarding is now scripted (`scripts/onboard-pilot.ts` + `PILOT_ONBOARDING.md`) — still needs Arnold to have a real establishment ready and the one-time service-role-key + email-delivery prerequisites set up |
 | Vercel may look stale after push | Low | Build succeeds locally — check Deployments tab against the latest commit; likely propagation/cache lag |
 | Staff PWA session doesn't persist between page loads | Low | Re-entering a PIN after every reload is intentional-for-now scope-tightening, not a bug, but may annoy staff mid-shift — revisit if it's a real friction point after the first pilot |
-| `/login` still in the old visual style | Low | Only page left out of the 2026-08-23 redesign pass — deliberately out of scope, not forgotten |
-| `public/landing-dashboard-preview.png` shows the old dashboard style | Low | Stale screenshot embedded in the landing page — the whole dashboard is now converted, so this can be re-captured any time |
+| `public/landing-dashboard-preview.png` shows the old dashboard style | Low | Stale screenshot embedded in the landing page — needs an authenticated 1440×900 capture of `/dashboard`; deliberately skipped 2026-08-23 (needs either credentials handed to Claude Code or Arnold capturing it himself) |
 | Supabase's `/auth/v1/user` endpoint intermittently hangs 60s+ with no response | Medium | Reproduced with raw `curl`, independent of the app — not a Supabase-side incident (checked their status page). Mitigated 2026-08-23: every Supabase client (`lib/supabase/{proxy,server,client}.ts`) now has an 8s fetch timeout (`lib/supabase/fetch-with-timeout.ts`), so a network blip fails fast instead of hanging the whole app for minutes. Root network cause is still unexplained — worth revisiting if it recurs. |
 
 ---
@@ -154,6 +153,11 @@ Tracks the "points to validate before full development" list from the Fidoo stra
 ---
 
 ## Change Log (append-only, most recent first)
+
+### 2026-08-23 (night, truly final) — Frontend redesign: /login converted; screenshot re-capture deferred
+- Converted `/login` to the "soft & tactile" style (full-page warm background, rounded-[24px] card, rounded-full submit button with the coral CTA shadow) — the one page explicitly left out of the previous pass. `tsc --noEmit` clean, 69/69 tests pass.
+- Arnold was offered three ways to get a fresh authenticated `/dashboard` screenshot for `public/landing-dashboard-preview.png` (hand over working credentials again, capture it himself and send the file, or skip) and chose to skip for now — deferred, not forgotten.
+- The redesign pass is now complete except that one screenshot. Arnold is moving on to Phase 6 (Stripe billing) next.
 
 ### 2026-08-23 (night, final) — Frontend redesign: the whole rest of the dashboard converted
 - Converted all 10 remaining pages in one continuous pass, per Arnold's request to stop pausing for review after each one: `/dashboard/wallet` (card editor — `components/dashboard/wallet/wallet-editor.tsx`), `/dashboard/qr-nfc` (+ `components/dashboard/qr-nfc/join-qr-code.tsx`), `/dashboard/loyalty`, `/dashboard/staff` (+ `StaffRoster.tsx`), `/dashboard/scan` (+ `CardQrCode.tsx`), `/dashboard/audit`, the `/onboarding` wizard (`components/onboarding/onboarding-wizard.tsx`), `/join/[establishmentId]` + `/join/[establishmentId]/welcome`, `/card/[id]`, and `/staff/[establishmentId]` (Staff PWA — `StaffConsole.tsx`, which shares the same scan/lookup/register flow as `/dashboard/scan`). Same established pattern throughout: rounded-[22–24px] white cards, `boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)"`, warm text palette, rounded-full pill buttons, per-component `className`/`style` overrides only — no changes to `components/ui/*`.

@@ -19,15 +19,20 @@ export default async function LoginPage({
   const { error } = await searchParams;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
-      <Card className="w-full max-w-sm">
+    <div className="flex min-h-screen items-center justify-center px-4" style={{ background: "#FBF6EF" }}>
+      <Card
+        className="w-full max-w-sm rounded-[24px] border-none bg-white"
+        style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
+      >
         <CardHeader className="items-center text-center">
           <Logo className="mb-3 h-6 w-auto" />
-          <CardTitle className="text-xl">Connexion établissement</CardTitle>
+          <CardTitle className="font-heading text-xl font-bold text-[#3A322B]">
+            Connexion établissement
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {error && (
-            <p className="mb-4 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <p className="mb-4 rounded-2xl bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">
               {ERROR_MESSAGES[error] ?? "Une erreur est survenue."}
             </p>
           )}
@@ -55,7 +60,10 @@ export default async function LoginPage({
               />
             </div>
 
-            <Button type="submit" className="w-full">
+            <Button
+              type="submit"
+              className="w-full rounded-full shadow-[0_8px_18px_rgba(255,90,95,0.32)]"
+            >
               Se connecter
             </Button>
           </form>
