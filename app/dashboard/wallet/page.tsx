@@ -21,8 +21,8 @@ export default async function WalletPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Cartes Wallet</h1>
-        <p className="mt-1 text-muted-foreground">À quoi ressemble leur carte ?</p>
+        <h1 className="font-heading text-2xl font-bold tracking-tight text-[#3A322B]">Cartes Wallet</h1>
+        <p className="mt-1 font-medium text-[#8A7D6C]">À quoi ressemble leur carte ?</p>
       </div>
       <WalletEditor establishmentName={establishmentUser.establishment.name} />
     </div>

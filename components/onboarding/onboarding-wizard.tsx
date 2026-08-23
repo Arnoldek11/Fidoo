@@ -27,7 +27,7 @@ function StepDots({ current }: { current: number }) {
       {Array.from({ length: STEP_COUNT }, (_, i) => (
         <span
           key={i}
-          className={cn("size-2 rounded-full", i + 1 <= current ? "bg-primary" : "bg-muted")}
+          className={cn("size-2 rounded-full", i + 1 <= current ? "bg-primary" : "bg-[#F0E4D3]")}
         />
       ))}
     </div>
@@ -53,7 +53,10 @@ export function OnboardingWizard({
   const rewardText = `${rewardPreset.threshold} = ${rewardPreset.reward}`;
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-2xl flex-col px-6 py-10">
+    <div
+      className="mx-auto flex min-h-screen max-w-2xl flex-col px-6 py-10"
+      style={{ background: "#FBF6EF" }}
+    >
       <div className="flex items-center justify-between">
         <Logo className="h-4 w-auto" />
         <StepDots current={step} />
@@ -63,8 +66,8 @@ export function OnboardingWizard({
         {step === 1 && (
           <div className="space-y-6 text-center">
             <div>
-              <h1 className="text-2xl font-semibold text-foreground">Bienvenue sur Fidoo 👋</h1>
-              <p className="mt-2 text-muted-foreground">
+              <h1 className="font-heading text-2xl font-bold text-[#3A322B]">Bienvenue sur Fidoo 👋</h1>
+              <p className="mt-2 font-medium text-[#8A7D6C]">
                 Configurons votre programme de fidélité en quelques minutes.
               </p>
             </div>
@@ -82,8 +85,8 @@ export function OnboardingWizard({
         {step === 2 && (
           <div className="space-y-6 text-center">
             <div>
-              <h1 className="text-2xl font-semibold text-foreground">Ajoutez votre logo</h1>
-              <p className="mt-2 text-muted-foreground">
+              <h1 className="font-heading text-2xl font-bold text-[#3A322B]">Ajoutez votre logo</h1>
+              <p className="mt-2 font-medium text-[#8A7D6C]">
                 Il apparaîtra sur la carte de vos clients.
               </p>
             </div>
@@ -100,10 +103,10 @@ export function OnboardingWizard({
         {step === 3 && (
           <div className="space-y-6 text-center">
             <div>
-              <h1 className="text-2xl font-semibold text-foreground">
+              <h1 className="font-heading text-2xl font-bold text-[#3A322B]">
                 Que souhaitez-vous offrir ?
               </h1>
-              <p className="mt-2 text-muted-foreground">
+              <p className="mt-2 font-medium text-[#8A7D6C]">
                 Choisissez la récompense qui donnera envie à vos clients de revenir.
               </p>
             </div>
@@ -114,14 +117,19 @@ export function OnboardingWizard({
                   type="button"
                   onClick={() => setRewardPresetId(preset.id)}
                   className={cn(
-                    "rounded-xl border p-4 text-left transition-colors",
+                    "rounded-2xl border p-4 text-left transition-all",
                     rewardPresetId === preset.id
                       ? "border-primary bg-primary-tint"
-                      : "border-border hover:bg-muted"
+                      : "border-transparent bg-white hover:bg-[#FFF8F0]"
                   )}
+                  style={
+                    rewardPresetId === preset.id
+                      ? { boxShadow: "0 8px 18px -6px rgba(255,90,95,0.25)" }
+                      : { boxShadow: "0 4px 12px -4px rgba(74,64,56,0.08)" }
+                  }
                 >
-                  <p className="text-sm font-medium text-foreground">{preset.threshold}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{preset.reward}</p>
+                  <p className="text-sm font-bold text-[#3A322B]">{preset.threshold}</p>
+                  <p className="mt-1 text-sm font-medium text-[#8A7D6C]">{preset.reward}</p>
                 </button>
               ))}
             </div>
@@ -131,8 +139,8 @@ export function OnboardingWizard({
         {step === 4 && (
           <div className="space-y-8">
             <div className="text-center">
-              <h1 className="text-2xl font-semibold text-foreground">Personnalisez votre carte</h1>
-              <p className="mt-2 text-muted-foreground">
+              <h1 className="font-heading text-2xl font-bold text-[#3A322B]">Personnalisez votre carte</h1>
+              <p className="mt-2 font-medium text-[#8A7D6C]">
                 Vos clients la garderont dans leur Apple ou Google Wallet.
               </p>
             </div>
@@ -165,10 +173,10 @@ export function OnboardingWizard({
         {step === 5 && (
           <div className="space-y-6 text-center">
             <div>
-              <h1 className="text-2xl font-semibold text-foreground">
+              <h1 className="font-heading text-2xl font-bold text-[#3A322B]">
                 Votre programme est prêt 🎉
               </h1>
-              <p className="mt-2 text-muted-foreground">
+              <p className="mt-2 font-medium text-[#8A7D6C]">
                 Affichez ce code pour que vos premiers clients rejoignent {name || "votre programme"}.
               </p>
             </div>
@@ -176,15 +184,25 @@ export function OnboardingWizard({
               <JoinQrCode establishmentId={establishmentId} />
             </div>
             <div className="mx-auto flex max-w-sm flex-col gap-2">
-              <Button disabled title="Bientôt disponible">
+              <Button disabled title="Bientôt disponible" className="rounded-full">
                 <Download />
                 Télécharger mon QR
               </Button>
-              <Button variant="outline" nativeButton={false} render={<a href="/dashboard/qr-nfc" />}>
+              <Button
+                variant="outline"
+                className="rounded-full"
+                nativeButton={false}
+                render={<a href="/dashboard/qr-nfc" />}
+              >
                 <Nfc />
                 Configurer NFC
               </Button>
-              <Button variant="outline" nativeButton={false} render={<a href="/dashboard" />}>
+              <Button
+                variant="outline"
+                className="rounded-full"
+                nativeButton={false}
+                render={<a href="/dashboard" />}
+              >
                 Voir mon dashboard
               </Button>
             </div>
@@ -195,14 +213,17 @@ export function OnboardingWizard({
       {step < 5 && (
         <div className="flex items-center justify-between">
           {step > 1 ? (
-            <Button variant="outline" onClick={() => setStep((s) => s - 1)}>
+            <Button variant="outline" className="rounded-full" onClick={() => setStep((s) => s - 1)}>
               <ArrowLeft />
               Retour
             </Button>
           ) : (
             <span />
           )}
-          <Button onClick={() => setStep((s) => s + 1)}>
+          <Button
+            className="rounded-full px-4 shadow-[0_8px_18px_rgba(255,90,95,0.32)]"
+            onClick={() => setStep((s) => s + 1)}
+          >
             Continuer
             <ArrowRight />
           </Button>

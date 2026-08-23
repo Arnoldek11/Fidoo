@@ -32,7 +32,7 @@ export function CardQrCode({ customerId }: { customerId: string }) {
         width={160}
         height={160}
       />
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs font-medium text-[#8A7D6C]">
         Le client scanne ce code avec son téléphone pour ouvrir sa carte
       </p>
     </div>

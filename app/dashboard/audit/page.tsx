@@ -28,40 +28,48 @@ export default async function AuditLogPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-semibold">Journal d&apos;accès</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="font-heading text-xl font-bold text-[#3A322B]">Journal d&apos;accès</h1>
+        <p className="text-sm font-medium text-[#8A7D6C]">
           Qui a consulté ou supprimé des données client, et quand.
         </p>
       </div>
 
-      <div className="rounded-lg border bg-card">
+      <div
+        className="overflow-hidden rounded-[24px] bg-white"
+        style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
+      >
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Action</TableHead>
-              <TableHead>Cible</TableHead>
+            <TableRow className="border-b border-[#F6ECDD] hover:bg-transparent">
+              <TableHead className="h-11 px-4 text-[11px] font-semibold tracking-wide text-[#B0A290] uppercase">Date</TableHead>
+              <TableHead className="text-[11px] font-semibold tracking-wide text-[#B0A290] uppercase">Action</TableHead>
+              <TableHead className="px-4 text-[11px] font-semibold tracking-wide text-[#B0A290] uppercase">Cible</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {entries.map((entry) => (
-              <TableRow key={entry.id}>
-                <TableCell>{entry.createdAt.toLocaleString("fr-BE")}</TableCell>
-                <TableCell>
+              <TableRow
+                key={entry.id}
+                className="border-b border-[#F6ECDD] transition-colors last:border-0 hover:bg-[#FFF8F0]"
+              >
+                <TableCell className="px-4 py-3.5 font-medium text-[#5B4F44]">
+                  {entry.createdAt.toLocaleString("fr-BE")}
+                </TableCell>
+                <TableCell className="py-3.5">
                   <Badge
                     variant={entry.action === "erased_customer" ? "destructive" : "secondary"}
                   >
                     {ACTION_LABELS[entry.action] ?? entry.action}
                   </Badge>
                 </TableCell>
-                <TableCell className="font-mono text-xs text-muted-foreground">
+                <TableCell className="px-4 py-3.5 font-mono text-xs text-[#B0A290]">
                   {entry.targetId}
                 </TableCell>
               </TableRow>
             ))}
             {entries.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={3} className="py-6 text-center text-muted-foreground">
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={3} className="py-10 text-center font-medium text-[#8A7D6C]">
                   Aucune entrée pour le moment.
                 </TableCell>
               </TableRow>

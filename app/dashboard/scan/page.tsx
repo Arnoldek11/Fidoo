@@ -133,12 +133,15 @@ export default function ScanPage() {
 
   return (
     <div className="mx-auto max-w-md space-y-6">
-      <h1 className="text-xl font-semibold">Scanner un client</h1>
+      <h1 className="font-heading text-xl font-bold text-[#3A322B]">Scanner un client</h1>
 
-      <Card className="overflow-hidden py-0">
-        <div id={SCANNER_ELEMENT_ID} className="aspect-square w-full bg-muted" />
+      <Card
+        className="overflow-hidden rounded-[22px] border-none bg-white py-0"
+        style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
+      >
+        <div id={SCANNER_ELEMENT_ID} className="aspect-square w-full bg-[#F6ECDD]" />
         {cameraStatus !== "ready" && (
-          <CardContent className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
+          <CardContent className="flex items-center gap-2 py-3 text-sm font-medium text-[#8A7D6C]">
             <Camera className="size-4 shrink-0" />
             {cameraStatus === "loading"
               ? "Activation de la caméra…"
@@ -155,7 +158,7 @@ export default function ScanPage() {
           placeholder="Numéro de téléphone"
           required
         />
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" className="rounded-full" disabled={isPending}>
           <Search />
           Rechercher
         </Button>
@@ -168,14 +171,17 @@ export default function ScanPage() {
       )}
 
       {lookup?.status === "found" && (
-        <Card>
+        <Card
+          className="rounded-[22px] border-none bg-white"
+          style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
+        >
           <CardContent className="space-y-3">
-            <p>
+            <p className="text-sm font-semibold text-[#3A322B]">
               {lookup.name ?? "Client"} — {lookup.balance} point
               {lookup.balance > 1 ? "s" : ""}
             </p>
             <Button
-              className="w-full"
+              className="w-full rounded-full"
               onClick={() => handleRecordVisit(lookup.customerId)}
               disabled={isPending}
             >
@@ -186,10 +192,13 @@ export default function ScanPage() {
       )}
 
       {lookup?.status === "not_found" && (
-        <Card>
+        <Card
+          className="rounded-[22px] border-none bg-white"
+          style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
+        >
           <CardContent>
             <form onSubmit={handleRegister} className="space-y-3">
-              <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <p className="flex items-center gap-1.5 text-sm font-semibold text-[#8A7D6C]">
                 <UserPlus className="size-4" />
                 Nouveau client — {phone}
               </p>
@@ -210,7 +219,7 @@ export default function ScanPage() {
                   cet établissement.
                 </span>
               </Label>
-              <Button type="submit" className="w-full" disabled={isPending}>
+              <Button type="submit" className="w-full rounded-full" disabled={isPending}>
                 Inscrire et enregistrer la visite
               </Button>
             </form>
@@ -219,15 +228,18 @@ export default function ScanPage() {
       )}
 
       {result && (
-        <Card className="border-primary/30 bg-primary/5">
+        <Card
+          className="rounded-[22px] border-none bg-white"
+          style={{ boxShadow: "0 14px 28px -10px rgba(255,90,95,0.16)" }}
+        >
           <CardContent className="space-y-3">
-            <p className="flex items-center gap-1.5 font-medium">
+            <p className="flex items-center gap-1.5 font-bold text-[#3A322B]">
               <CheckCircle2 className="size-4 text-primary" />
               Visite enregistrée — {result.balance} point
               {result.balance > 1 ? "s" : ""}
             </p>
             <CardQrCode customerId={result.customerId} />
-            <Button variant="outline" className="w-full" onClick={reset}>
+            <Button variant="outline" className="w-full rounded-full" onClick={reset}>
               <RotateCcw />
               Scanner un autre client
             </Button>

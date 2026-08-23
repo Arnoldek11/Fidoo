@@ -46,18 +46,21 @@ export function StaffRoster({ initialStaff }: { initialStaff: StaffMemberRow[] }
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <Card className="border border-border shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+      <Card
+        className="rounded-[22px] border-none bg-white [--card-spacing:--spacing(6)]"
+        style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
+      >
         <CardContent className="space-y-4 pt-6">
-          <p className="text-sm font-semibold text-muted-foreground">
+          <p className="text-[13px] font-semibold text-[#8A7D6C]">
             {staff.length === 0 ? "Aucun employé" : `${staff.length} employé${staff.length > 1 ? "s" : ""}`}
           </p>
           <div className="space-y-2">
             {staff.map((s) => (
               <div
                 key={s.id}
-                className="flex items-center justify-between rounded-[10px] border border-border px-3 py-2"
+                className="flex items-center justify-between rounded-2xl bg-[#F6ECDD] px-3.5 py-2.5"
               >
-                <span className="flex items-center gap-2 text-sm font-medium">
+                <span className="flex items-center gap-2 text-sm font-semibold text-[#3A322B]">
                   {s.name}
                   {!s.active && <Badge variant="secondary">Désactivé</Badge>}
                 </span>
@@ -65,6 +68,7 @@ export function StaffRoster({ initialStaff }: { initialStaff: StaffMemberRow[] }
                   type="button"
                   variant="outline"
                   size="sm"
+                  className="rounded-full"
                   disabled={isPending}
                   onClick={() => handleToggle(s.id, !s.active)}
                 >
@@ -76,9 +80,12 @@ export function StaffRoster({ initialStaff }: { initialStaff: StaffMemberRow[] }
         </CardContent>
       </Card>
 
-      <Card className="border border-border shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+      <Card
+        className="rounded-[22px] border-none bg-white [--card-spacing:--spacing(6)]"
+        style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
+      >
         <CardContent className="space-y-4 pt-6">
-          <p className="flex items-center gap-1.5 text-sm font-semibold text-muted-foreground">
+          <p className="flex items-center gap-1.5 text-[13px] font-semibold text-[#8A7D6C]">
             <UserPlus className="size-4" />
             Ajouter un employé
           </p>
@@ -103,7 +110,7 @@ export function StaffRoster({ initialStaff }: { initialStaff: StaffMemberRow[] }
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            <Button type="submit" className="w-full" disabled={isPending}>
+            <Button type="submit" className="w-full rounded-full" disabled={isPending}>
               Ajouter
             </Button>
           </form>

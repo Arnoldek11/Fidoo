@@ -22,9 +22,14 @@ export function WalletEditor({ establishmentName }: { establishmentName: string 
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <Card className="border border-border shadow-[0_1px_2px_rgba(0,0,0,0.03)] [--card-spacing:--spacing(6)]">
-        <CardHeader className="border-b border-border pb-4">
-          <CardTitle className="text-base">Personnaliser la carte</CardTitle>
+      <Card
+        className="rounded-[22px] border-none bg-white [--card-spacing:--spacing(6)]"
+        style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
+      >
+        <CardHeader className="border-b border-[#F6ECDD] pb-4">
+          <CardTitle className="font-heading text-base font-bold text-[#3A322B]">
+            Personnaliser la carte
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-5 pt-6">
           <LogoUploadField logoDataUrl={logoDataUrl} onChange={setLogoDataUrl} />
@@ -59,14 +64,17 @@ export function WalletEditor({ establishmentName }: { establishmentName: string 
             <Input id="reward" value={rewardText} onChange={(e) => setRewardText(e.target.value)} />
           </div>
 
-          <Button disabled title="Bientôt disponible" className="w-full">
+          <Button disabled title="Bientôt disponible" className="w-full rounded-full">
             Enregistrer
           </Button>
         </CardContent>
       </Card>
 
       <div className="space-y-6">
-        <Card className="border border-border shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+        <Card
+          className="rounded-[24px] border-none bg-white"
+          style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
+        >
           <CardContent className="py-8">
             <PhoneFrame>
               <WalletCard data={data} variant="apple" />
@@ -76,11 +84,11 @@ export function WalletEditor({ establishmentName }: { establishmentName: string 
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="mb-2 text-xs font-medium text-muted-foreground">Apple Wallet</p>
+            <p className="mb-2 text-xs font-semibold text-[#8A7D6C]">Apple Wallet</p>
             <WalletCard data={data} variant="apple" />
           </div>
           <div>
-            <p className="mb-2 text-xs font-medium text-muted-foreground">Google Wallet</p>
+            <p className="mb-2 text-xs font-semibold text-[#8A7D6C]">Google Wallet</p>
             <WalletCard data={data} variant="google" />
           </div>
         </div>

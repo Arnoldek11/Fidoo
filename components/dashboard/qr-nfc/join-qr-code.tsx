@@ -26,15 +26,15 @@ export function JoinQrCode({ establishmentId }: { establishmentId: string }) {
 
   return (
     <div className="space-y-3 text-center">
-      <div className="mx-auto flex size-48 items-center justify-center rounded-xl bg-muted">
+      <div className="mx-auto flex size-48 items-center justify-center rounded-2xl bg-[#F6ECDD]">
         {dataUrl ? (
           // eslint-disable-next-line @next/next/no-img-element -- generated data: URL, not a static asset
           <img src={dataUrl} alt="Code QR pour rejoindre le programme" width={192} height={192} />
         ) : (
-          <span className="text-xs text-muted-foreground">Génération…</span>
+          <span className="text-xs font-medium text-[#8A7D6C]">Génération…</span>
         )}
       </div>
-      <p className="truncate text-xs text-muted-foreground">{joinUrl}</p>
+      <p className="truncate text-xs font-medium text-[#B0A290]">{joinUrl}</p>
     </div>
   );
 }

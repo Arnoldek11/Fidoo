@@ -8,8 +8,8 @@
 
 ## Snapshot (update this block every time)
 
-- **Last updated:** 2026-08-23 (night, later)
-- **Current phase:** All backend phases through 4/5/7 done (see tracker). Current work is a **visual redesign pass** ("soft & tactile" brand direction — real logo, Bricolage Grotesque + Nunito Sans, rounded cards with soft shadows, coral pill accents) rolling out page by page across the dashboard. Landing page + dashboard shell + Vue d'ensemble + Clients + Campagnes are done and confirmed; the rest of the dashboard (Wallet, QR & NFC, Fidélité, Équipe, Scanner, Journal d'accès) is still in the older flat/hairline shadcn style — Arnold asked to push through all remaining sidebar pages in one continuous session (2026-08-23 night) rather than one-at-a-time — see "Frontend / Design Status" below.
+- **Last updated:** 2026-08-23 (night, later still)
+- **Current phase:** All backend phases through 4/5/7 done (see tracker). The **visual redesign pass** ("soft & tactile" brand direction — real logo, Bricolage Grotesque + Nunito Sans, rounded cards with soft shadows, coral pill accents) is now essentially complete: landing page, dashboard shell, and every sidebar page (Vue d'ensemble, Clients, Campagnes, Wallet, QR & NFC, Fidélité, Équipe, Scanner, Journal d'accès) plus the onboarding wizard and public flows (join, welcome, customer card, Staff PWA counter) are converted and confirmed by Arnold on `localhost:3100`. Only `/login` was left untouched (outside the requested scope) — see "Frontend / Design Status" below.
 - **Phase status:** In progress — see tracker
 - **Overall completion:** ~6.5 / 9 phases complete (0–8 plus the new 4.5, per plan-execution-claude-code.md + phase-4-6-revision.md). The redesign pass is a cross-cutting UI initiative, not one of the numbered phases.
 - **Stack confirmed:** Next.js 16 (App Router) + TypeScript · Prisma 7 · Postgres/Supabase (Auth + RLS) · Tailwind + shadcn/ui · Inngest · Twilio · Sentry — **Stripe and passkit-generator not yet added**
@@ -44,21 +44,21 @@ Direction: **"soft & tactile"** — warm off-white, rounded-24-28px cards with r
 - Landing page (`app/page.tsx` + `components/landing/*`)
 - Dashboard shell: sidebar nav, establishment switcher (`app/dashboard/layout.tsx`, `components/dashboard/sidebar-nav.tsx`, `components/dashboard/establishment-switcher.tsx`)
 - Vue d'ensemble / overview page: KPI cards, activity chart, activity feed, period selector (`app/dashboard/page.tsx` + `components/dashboard/{kpi-card,activity-chart,activity-feed,period-select}.tsx`)
-- `/dashboard/customers` (list: pill filters/sort, rounded table card) + `/dashboard/customers/[id]` (detail: stat cards, history feed) + the Delete/Reverse-visit dialog trigger buttons — converted 2026-08-23 (later night), visually confirmed by Arnold on `localhost:3100` the same day.
-- `/dashboard/campaigns` (suggestion cards + campaign history feed) — converted 2026-08-23 (later night), visually confirmed by Arnold on `localhost:3100` the same day.
-
-**Not yet converted — still the older flat/hairline shadcn style:**
-- `/dashboard/wallet` (card editor)
-- `/dashboard/qr-nfc`
-- `/dashboard/loyalty`
+- `/dashboard/customers` (list: pill filters/sort, rounded table card) + `/dashboard/customers/[id]` (detail: stat cards, history feed) + the Delete/Reverse-visit dialog trigger buttons
+- `/dashboard/campaigns` (suggestion cards + campaign history feed)
+- `/dashboard/wallet` (card editor — `components/dashboard/wallet/wallet-editor.tsx`; the actual `WalletCard`/`PhoneFrame` pass-preview components were deliberately left as-is, since they mimic a real Apple/Google Wallet pass rather than the app's own dashboard chrome, and are already shared with the landing page's hero preview)
+- `/dashboard/qr-nfc` (QR card + NFC status card + join steps)
+- `/dashboard/loyalty` (stamp-card preview + program rules)
 - `/dashboard/staff` (roster management)
-- `/dashboard/scan`
-- `/dashboard/audit`
-- `/onboarding` wizard, `/join/[establishmentId]` public flow, `/card/[id]` public card, `/staff/[establishmentId]` counter PWA
+- `/dashboard/scan` (camera/manual lookup → register → confirm flow)
+- `/dashboard/audit` (journal table, same pattern as Clients)
+- `/onboarding` wizard (5-step, standalone full-page), `/join/[establishmentId]` + `/join/[establishmentId]/welcome` (public join flow), `/card/[id]` (public installable customer card), `/staff/[establishmentId]` (Staff PWA counter console — PIN pad + the same scan/lookup/register flow as `/dashboard/scan`)
 
-None of this is broken — it's functionally complete, just visually inconsistent with the new pages until converted. Recommended approach for continuing: same pattern used for Vue d'ensemble — override card/button styling per-component via `className`/inline `style` (rounded-[Npx], soft `boxShadow`, brand hex colors), without touching the shared `components/ui/*` primitives, since those are used everywhere and a global change has much bigger blast radius than intended.
+All converted 2026-08-23 (night), visually confirmed by Arnold on `localhost:3100` the same night, then committed and pushed.
 
-**Also stale**: `public/landing-dashboard-preview.png` (the screenshot embedded in the landing page) still shows the *old* dashboard style — needs re-capturing from a logged-in session once more of the dashboard is converted, since capturing it now would still show a half-converted product.
+**Deliberately not converted:** `/login` — outside what Arnold asked for this session; still the plain shadcn `Card`. Worth doing whenever another dashboard-adjacent pass happens, for full consistency.
+
+**Also stale**: `public/landing-dashboard-preview.png` (the screenshot embedded in the landing page) still shows the *old* dashboard style — now that the whole dashboard is converted, this can be re-captured from a real logged-in session.
 
 ---
 
@@ -76,9 +76,9 @@ None of this is broken — it's functionally complete, just visually inconsisten
 
 ## In Progress
 
-- **Current task:** Frontend redesign pass — Arnold asked to push through all remaining sidebar pages back-to-back (Wallet, QR & NFC, Fidélité, Équipe, Scanner, Journal d'accès, plus onboarding/public flows) rather than one-at-a-time with a review in between each. Landing + dashboard shell + Vue d'ensemble + Clients + Campagnes done, shipped, and visually confirmed by Arnold.
-- **Blocked on:** nothing — this is unblocked, ongoing work. Stripe (Phase 6) and real Wallet issuance (Phase 4.5) remain untriggered/deferred as before.
-- **Next logical step:** finish the remaining redesign pages, then switch to Phase 8's remaining gaps (Supabase backup/restore test, first real pilot) — those need Arnold directly (dashboard access, business outreach), not more code.
+- **Current task:** Frontend redesign pass — **done**. Every sidebar page plus onboarding/public flows are converted, confirmed, committed, and pushed. Only `/login` remains in the old style (out of scope this session).
+- **Blocked on:** nothing. Stripe (Phase 6) and real Wallet issuance (Phase 4.5) remain untriggered/deferred as before.
+- **Next logical step:** no more redesign work queued — logical next steps are Phase 8's remaining gaps (Supabase backup/restore test, first real pilot, both need Arnold directly), converting `/login` for full consistency, or re-capturing `public/landing-dashboard-preview.png` now that the dashboard it depicts is actually up to date. No hard dependency between any of these — Arnold's call on what's next.
 
 ---
 
@@ -123,8 +123,8 @@ None of this is broken — it's functionally complete, just visually inconsisten
 | No real pilot establishment accounts yet | Medium | Onboarding is now scripted (`scripts/onboard-pilot.ts` + `PILOT_ONBOARDING.md`) — still needs Arnold to have a real establishment ready and the one-time service-role-key + email-delivery prerequisites set up |
 | Vercel may look stale after push | Low | Build succeeds locally — check Deployments tab against the latest commit; likely propagation/cache lag |
 | Staff PWA session doesn't persist between page loads | Low | Re-entering a PIN after every reload is intentional-for-now scope-tightening, not a bug, but may annoy staff mid-shift — revisit if it's a real friction point after the first pilot |
-| 8 dashboard/public pages still in the old visual style | Low | Not broken, just inconsistent with the new "soft & tactile" pages — see Frontend / Design Status above for the exact list |
-| `public/landing-dashboard-preview.png` shows the old dashboard style | Low | Stale screenshot embedded in the landing page — re-capture once more pages are converted |
+| `/login` still in the old visual style | Low | Only page left out of the 2026-08-23 redesign pass — deliberately out of scope, not forgotten |
+| `public/landing-dashboard-preview.png` shows the old dashboard style | Low | Stale screenshot embedded in the landing page — the whole dashboard is now converted, so this can be re-captured any time |
 | Supabase's `/auth/v1/user` endpoint intermittently hangs 60s+ with no response | Medium | Reproduced with raw `curl`, independent of the app — not a Supabase-side incident (checked their status page). Mitigated 2026-08-23: every Supabase client (`lib/supabase/{proxy,server,client}.ts`) now has an 8s fetch timeout (`lib/supabase/fetch-with-timeout.ts`), so a network blip fails fast instead of hanging the whole app for minutes. Root network cause is still unexplained — worth revisiting if it recurs. |
 
 ---
@@ -154,6 +154,13 @@ Tracks the "points to validate before full development" list from the Fidoo stra
 ---
 
 ## Change Log (append-only, most recent first)
+
+### 2026-08-23 (night, final) — Frontend redesign: the whole rest of the dashboard converted
+- Converted all 10 remaining pages in one continuous pass, per Arnold's request to stop pausing for review after each one: `/dashboard/wallet` (card editor — `components/dashboard/wallet/wallet-editor.tsx`), `/dashboard/qr-nfc` (+ `components/dashboard/qr-nfc/join-qr-code.tsx`), `/dashboard/loyalty`, `/dashboard/staff` (+ `StaffRoster.tsx`), `/dashboard/scan` (+ `CardQrCode.tsx`), `/dashboard/audit`, the `/onboarding` wizard (`components/onboarding/onboarding-wizard.tsx`), `/join/[establishmentId]` + `/join/[establishmentId]/welcome`, `/card/[id]`, and `/staff/[establishmentId]` (Staff PWA — `StaffConsole.tsx`, which shares the same scan/lookup/register flow as `/dashboard/scan`). Same established pattern throughout: rounded-[22–24px] white cards, `boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)"`, warm text palette, rounded-full pill buttons, per-component `className`/`style` overrides only — no changes to `components/ui/*`.
+- Deliberately left `WalletCard`/`PhoneFrame` (`components/wallet-card.tsx`, `components/phone-frame.tsx`) unstyled by this pass — they render a mockup of the actual Apple/Google Wallet pass the customer would see, not the app's own dashboard chrome, and are already shared with the already-shipped landing-page hero preview.
+- Standalone pages outside the dashboard shell (onboarding, join, welcome, card, Staff PWA) got the same full-page warm background (`style={{ background: "#FBF6EF" }}`) already established on the landing page and dashboard shell, since they don't inherit it from a shared layout.
+- `/login` was deliberately left in the old style — outside what was asked this session.
+- Verified: `tsc --noEmit` clean, 69/69 tests, dev server smoke-tested every route (all dashboard routes correctly redirect unauthenticated to `/login`; `/join`/`/card` return a clean 404 for a nonexistent id rather than a 500) — no crashes anywhere. Arnold then reviewed all of it live on `localhost:3100` and confirmed it looks right before this was committed and pushed.
 
 ### 2026-08-23 (night, later still) — Frontend redesign: Campagnes converted; Clients mobile fix
 - Converted `/dashboard/campaigns` to the "soft & tactile" style: header button and suggestion cards (`components/dashboard/campaigns/suggestion-card.tsx`) rebuilt with rounded-[22px] white cards/soft shadows/warm palette, feature icon chips switched from `rounded-full` to `rounded-2xl` to match the established feature-icon convention (person avatars stay `rounded-full`, feature icons are `rounded-xl`/`rounded-2xl`), and the campaign history rebuilt as a single divided list inside one card (mirroring the Clients history pattern) instead of one bordered `Card` per campaign. Verified: `tsc --noEmit` clean, 69/69 tests, visually confirmed by Arnold on `localhost:3100`.

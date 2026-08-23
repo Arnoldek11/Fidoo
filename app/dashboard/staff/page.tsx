@@ -21,10 +21,10 @@ export default async function StaffPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Équipe</h1>
-        <p className="mt-1 text-muted-foreground">
+        <h1 className="font-heading text-2xl font-bold tracking-tight text-[#3A322B]">Équipe</h1>
+        <p className="mt-1 font-medium text-[#8A7D6C]">
           Chaque employé a son propre code PIN pour valider les visites au comptoir (
-          <a href={`/staff/${establishmentUser.establishmentId}`} className="underline">
+          <a href={`/staff/${establishmentUser.establishmentId}`} className="text-primary underline">
             ouvrir le comptoir
           </a>
           ).

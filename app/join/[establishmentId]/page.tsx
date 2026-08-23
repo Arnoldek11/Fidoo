@@ -18,23 +18,26 @@ export default async function JoinPage({
   if (!establishment) notFound();
 
   return (
-    <div className="flex min-h-screen flex-col bg-background px-6 py-10">
+    <div className="flex min-h-screen flex-col px-6 py-10" style={{ background: "#FBF6EF" }}>
       <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center text-center">
-        <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-primary-tint text-2xl font-semibold text-primary">
+        <span
+          className="mx-auto flex size-16 items-center justify-center rounded-full bg-primary-tint text-2xl font-bold text-primary"
+          style={{ boxShadow: "0 8px 18px -6px rgba(255,90,95,0.25)" }}
+        >
           {establishment.name.trim().charAt(0).toUpperCase()}
         </span>
-        <p className="mt-3 text-sm font-medium text-muted-foreground">{establishment.name}</p>
+        <p className="mt-3 text-sm font-semibold text-[#8A7D6C]">{establishment.name}</p>
 
-        <h1 className="mt-6 text-2xl font-semibold text-foreground">
+        <h1 className="mt-6 font-heading text-2xl font-bold text-[#3A322B]">
           Rejoignez notre programme fidélité
         </h1>
-        <p className="mt-2 text-muted-foreground">Des récompenses, simplement.</p>
+        <p className="mt-2 font-medium text-[#8A7D6C]">Des récompenses, simplement.</p>
 
         <div className="mt-8 space-y-2.5">
           <Button
             disabled
             title="Bientôt disponible"
-            className="w-full bg-neutral-950 text-white hover:bg-neutral-950"
+            className="w-full rounded-full bg-neutral-950 text-white hover:bg-neutral-950"
           >
             Continuer avec Apple
           </Button>
@@ -42,7 +45,7 @@ export default async function JoinPage({
             disabled
             title="Bientôt disponible"
             variant="outline"
-            className="w-full"
+            className="w-full rounded-full"
           >
             Continuer avec Google
           </Button>
@@ -50,20 +53,20 @@ export default async function JoinPage({
             disabled
             title="Bientôt disponible"
             variant="outline"
-            className="w-full"
+            className="w-full rounded-full"
           >
             Continuer avec le numéro de téléphone
           </Button>
         </div>
 
-        <p className="mt-6 text-xs text-muted-foreground">
+        <p className="mt-6 text-xs font-medium text-[#B0A290]">
           Gratuit · 10 secondes · Aucun téléchargement
         </p>
       </div>
 
       <a
         href={`/join/${establishmentId}/welcome`}
-        className="mx-auto flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+        className="mx-auto flex items-center gap-1 text-xs font-medium text-[#8A7D6C] hover:text-[#3A322B]"
       >
         Aperçu de l&apos;écran suivant
         <ArrowRight className="size-3.5" />

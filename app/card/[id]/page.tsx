@@ -27,13 +27,16 @@ export default async function CustomerCardPage({
   if (!card) notFound();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 p-6">
-      <div className="w-full max-w-xs overflow-hidden rounded-2xl border bg-card shadow-lg">
+    <div className="flex min-h-screen items-center justify-center p-6" style={{ background: "#FBF6EF" }}>
+      <div
+        className="w-full max-w-xs overflow-hidden rounded-[24px] bg-white"
+        style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.14)" }}
+      >
         <div className="bg-primary px-6 py-5 text-center text-primary-foreground">
-          <p className="text-xs font-medium uppercase tracking-wide opacity-80">
+          <p className="text-xs font-semibold uppercase tracking-wide opacity-80">
             {card.establishmentName}
           </p>
-          {card.name && <p className="mt-1 text-lg font-semibold">{card.name}</p>}
+          {card.name && <p className="font-heading mt-1 text-lg font-bold">{card.name}</p>}
         </div>
 
         <div className="p-6">
