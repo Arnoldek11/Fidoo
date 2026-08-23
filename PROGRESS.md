@@ -9,9 +9,9 @@
 ## Snapshot (update this block every time)
 
 - **Last updated:** 2026-08-23
-- **Current phase:** Phase 4 (revised: Staff PWA + wallet-lite) implemented, not yet gate-verified with a real device/pilot; Phase 4.5 (real Apple/Google Wallet issuance) and Phase 6 (Stripe) deferred by design, see Deviations
+- **Current phase:** Phase 4 (revised: Staff PWA + wallet-lite) built and manually verified by Arnold on a real device — gate considered passed; Phase 4.5 (real Apple/Google Wallet issuance) and Phase 6 (Stripe) deferred by design, see Deviations
 - **Phase status:** In progress — see tracker
-- **Overall completion:** ~6 / 9 phases complete (0–8 plus the new 4.5, per plan-execution-claude-code.md + phase-4-6-revision.md)
+- **Overall completion:** ~6.5 / 9 phases complete (0–8 plus the new 4.5, per plan-execution-claude-code.md + phase-4-6-revision.md)
 - **Stack confirmed:** Next.js 16 (App Router) + TypeScript · Prisma 7 · Postgres/Supabase (Auth + RLS) · Tailwind + shadcn/ui · Inngest · Twilio · Sentry — **Stripe and passkit-generator not yet added**
 - **Brand name:** Fidoo (confirmed — check trademark status below)
 - **Last commits (as of last push):** 5178d08 (customer classification), 55f36b2 (onboarding wizard + public self-join), d48416c (Dashboard v2 rebuild) — all pushed to origin/main. Phase 4 (revised) work below is implemented and tested locally, **not yet committed/pushed** — see In Progress.
@@ -26,7 +26,7 @@
 | 1 | Multi-tenant + RLS | ✅ Done | ✅ | RLS enforced, isolation test exists |
 | 2 | Customer ID + points loop | ✅ Done | ✅ | customers/events tables, append-only journal, QR scan flow |
 | 3 | Dashboard v1 | ✅ Done | ✅ | Superseded in practice by "Dashboard v2" (unplanned rebuild, see Deviations) |
-| 4 | Staff PWA + wallet-lite (revised, replaces original "Wallet passes") | 🟡 Built, ungated | ☐ | See phase-4-6-revision.md. Staff roster (`/dashboard/staff`), PIN-based counter console (`/staff/[establishmentId]`), cooldown + staff attribution on events, owner-only reversal, per-customer installable manifest on `/card/[id]`. Gate (real device, real pilot) not yet run. |
+| 4 | Staff PWA + wallet-lite (revised, replaces original "Wallet passes") | ✅ Done | ✅ | See phase-4-6-revision.md. Staff roster (`/dashboard/staff`), PIN-based counter console (`/staff/[establishmentId]`), cooldown + staff attribution on events, owner-only reversal, per-customer installable manifest on `/card/[id]`. Arnold tested end-to-end on a real device 2026-08-23 and confirmed it works. |
 | 4.5 | Real Apple/Google Wallet issuance (new, deferred) | ⚠️ Deferred | ☐ | Explicitly not started — waits for Phase 4 gate + a pilot request or Arnold's go-ahead, per phase-4-6-revision.md |
 | 5 | Win-back + attribution | ✅ Done | ✅ | Inngest nightly job, Twilio SMS, attributed_return logic, revenue widget |
 | 6 | Stripe billing | ❌ Not started (resequenced) | ☐ | Trigger is now "a specific establishment ready to convert from pilot to paid," not a fixed phase order — see phase-4-6-revision.md |
@@ -49,9 +49,9 @@
 
 ## In Progress
 
-- **Current task:** Phase 4 (revised) — Staff PWA + wallet-lite — implemented and locally verified (69/69 tests, tsc clean, prod build compiles all 24 routes). **Not yet committed or pushed to origin/main.**
-- **Blocked on:** real-device verification of the Phase 4 gate (staff validates a real visit, cooldown/isolation hold up outside a test DB); Stripe still not started (Phase 6); real Wallet issuance still not started (Phase 4.5)
-- **Next logical step:** commit/push this Phase 4 work (ask Arnold first — nothing auto-commits), then run the Phase 4 gate checklist with a real staff member + device; after that, decide Wallet 4.5 vs. Stripe 6 priority per the resequencing doc's trigger conditions
+- **Current task:** none — Phase 4 (revised) shipped (commit `0b5f8f3`, pushed to origin/main) and Arnold confirmed it works end-to-end on a real device.
+- **Blocked on:** Stripe still not started (Phase 6, waiting on a real pilot ready to convert); real Wallet issuance still not started (Phase 4.5, waiting on a pilot request or Arnold's go-ahead)
+- **Next logical step:** neither 4.5 nor 6 is triggered yet, so the highest-leverage work is Phase 8's remaining gaps — Supabase backup/restore test and onboarding the first 1-2 real pilot establishments — both of which need Arnold (Supabase dashboard access, business outreach), not more code. See Known Issues.
 
 ---
 
@@ -92,10 +92,9 @@
 | No Stripe integration — no plan-gating/billing enforcement | High | Blocks monetizing real pilots |
 | Wallet/QR/NFC pages have explicit "Bientôt disponible" stubs (download/print QR poster, NFC tag config) | Low | Intentional, not broken |
 | `gh` CLI not installed; npm/npx need PATH refresh after Node install via winget | Low | Dev-environment annoyance only |
-| No evidence of tested Supabase backup/restore or real pilot establishment accounts | Medium | Phase 8 checklist gap |
+| No tested Supabase backup/restore | Medium | Runbook ready (`BACKUP_RESTORE_RUNBOOK.md`) — Arnold still needs to actually run it once in the Supabase dashboard |
+| No real pilot establishment accounts yet | Medium | Onboarding is now scripted (`scripts/onboard-pilot.ts` + `PILOT_ONBOARDING.md`) — still needs Arnold to have a real establishment ready and the one-time service-role-key + email-delivery prerequisites set up |
 | Vercel may look stale after push | Low | Build succeeds locally — check Deployments tab against the latest commit; likely propagation/cache lag |
-| Phase 4 (Staff PWA + wallet-lite) implemented but not committed/pushed | Medium | Only exists on this machine's working tree as of 2026-08-23; ask Arnold before committing |
-| Phase 4 gate not run against a real device/pilot | Medium | All verification so far is automated tests + local build; "staff validates a real visit, sees it within 5s on the card page" has not been physically tested |
 | Staff PWA session doesn't persist between page loads | Low | Re-entering a PIN after every reload is intentional-for-now scope-tightening, not a bug, but may annoy staff mid-shift — revisit if it's a real friction point after the first pilot |
 
 ---
@@ -125,6 +124,16 @@ Tracks the "points to validate before full development" list from the Fidoo stra
 ---
 
 ## Change Log (append-only, most recent first)
+
+### 2026-08-23 (night) — Backup/restore runbook + pilot onboarding script
+- `BACKUP_RESTORE_RUNBOOK.md`: step-by-step for testing a Supabase restore into a throwaway scratch project (never onto the live one, since there's no separate staging environment) — includes RLS/policy verification, since a raw `pg_dump`/`pg_restore` can silently drop policies.
+- `scripts/onboard-pilot.ts` + `PILOT_ONBOARDING.md`: replaces the hardcoded-id pattern in `prisma/seed.ts` for real establishments. Invites the owner via Supabase's official `inviteUserByEmail` (no homemade auth), then creates the `Establishment`/`EstablishmentUser` rows. Requires a one-time `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` (not yet present — Arnold needs to add it before first use) and Supabase email delivery configured. Smoke-tested: missing-args and missing-service-role-key paths both fail cleanly before touching Supabase or the database.
+- Neither closes its Known Issues row by itself — both still need Arnold to actually execute them (the restore test once; onboarding once a real pilot is ready).
+
+### 2026-08-23 (evening) — Phase 4 gate passed
+- Committed and pushed Phase 4 (revised) work as `0b5f8f3`.
+- Arnold tested `/dashboard/staff` (added a real employee) and `/staff/[establishmentId]` (PIN pad + scan/validate) on a real device and confirmed it works — Phase 4 gate considered passed, tracker updated to ✅ Done.
+- Phase 4.5 (real Wallet issuance) and Phase 6 (Stripe) remain deliberately untouched — neither has a trigger condition met yet (see phase-4-6-revision.md). Recommended next non-blocked work: Phase 8's remaining gaps (Supabase backup/restore test, first real pilot accounts) — both need Arnold directly, not more code.
 
 ### 2026-08-23 (later same day) — Phase 4 (revised) implementation
 - Built Staff PWA + wallet-lite per phase-4-6-revision.md: new `staff_members` table (RLS-scoped, PIN hashed with Node's built-in `crypto.scrypt`), `events.staff_id` column (existing-table migration, confirmed with Arnold before applying), `lib/staff/{pin,roster,validate}.ts`, `lib/loyalty/reversal.ts`, owner-side roster page (`/dashboard/staff`), counter-facing PIN pad + scan console (`/staff/[establishmentId]`), owner-only "correct last point" action on the customer detail page, and a per-customer installable manifest on `/card/[id]`.
