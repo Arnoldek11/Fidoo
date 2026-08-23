@@ -8,13 +8,13 @@
 
 ## Snapshot (update this block every time)
 
-- **Last updated:** 2026-08-23 (night, later still)
-- **Current phase:** All backend phases through 4/5/7 done (see tracker). The **visual redesign pass** ("soft & tactile" brand direction — real logo, Bricolage Grotesque + Nunito Sans, rounded cards with soft shadows, coral pill accents) is now essentially complete: landing page, dashboard shell, and every sidebar page (Vue d'ensemble, Clients, Campagnes, Wallet, QR & NFC, Fidélité, Équipe, Scanner, Journal d'accès) plus the onboarding wizard and public flows (join, welcome, customer card, Staff PWA counter) are converted and confirmed by Arnold on `localhost:3100`. Only `/login` was left untouched (outside the requested scope) — see "Frontend / Design Status" below.
+- **Last updated:** 2026-08-23 (night, Phase 6 gate passed)
+- **Current phase:** The **visual redesign pass** is complete — see "Frontend / Design Status" below. **Phase 6 (Stripe billing) gate passed**: Arnold ran a real end-to-end test-mode Checkout on `localhost:3100` (test card `4242...`), the webhook (`checkout.session.completed`) was received and processed (`200`, confirmed in the `stripe listen` log), and the establishment's plan/billing status updated correctly in the live database. See "Phase 6" notes below the tracker for what's still open for a real production launch (Vercel env vars, a production webhook endpoint).
 - **Phase status:** In progress — see tracker
-- **Overall completion:** ~6.5 / 9 phases complete (0–8 plus the new 4.5, per plan-execution-claude-code.md + phase-4-6-revision.md). The redesign pass is a cross-cutting UI initiative, not one of the numbered phases.
-- **Stack confirmed:** Next.js 16 (App Router) + TypeScript · Prisma 7 · Postgres/Supabase (Auth + RLS) · Tailwind + shadcn/ui · Inngest · Twilio · Sentry — **Stripe and passkit-generator not yet added**
+- **Overall completion:** ~7 / 9 phases complete (0–8 plus the new 4.5, per plan-execution-claude-code.md + phase-4-6-revision.md).
+- **Stack confirmed:** Next.js 16 (App Router) + TypeScript · Prisma 7 · Postgres/Supabase (Auth + RLS) · Tailwind + shadcn/ui · Inngest · Twilio · Sentry · **Stripe** (`stripe` npm package added 2026-08-23, gate passed same day) — passkit-generator still not added
 - **Brand name:** Fidoo (confirmed — check trademark status below)
-- **Last commits (as of last push):** `4496dfa` (dashboard restyle + Supabase client timeout resilience), `f4e8209` (real logo + soft/tactile landing page), `439441a`/`2b1e9b3`/`0b5f8f3` (Phase 4 revised) — all pushed to origin/main, Vercel deploys automatically on push to main.
+- **Last commits (as of last push):** `33c0fd1` (login page redesign), `0f5b785` (remaining dashboard + public pages redesign), `ecba7c2` (Campagnes redesign) — all pushed to origin/main, Vercel deploys automatically on push to main. Stripe work (this update) is about to be committed.
 
 ---
 
@@ -29,9 +29,36 @@
 | 4 | Staff PWA + wallet-lite (revised, replaces original "Wallet passes") | ✅ Done | ✅ | See phase-4-6-revision.md. Staff roster (`/dashboard/staff`), PIN-based counter console (`/staff/[establishmentId]`), cooldown + staff attribution on events, owner-only reversal, per-customer installable manifest on `/card/[id]`. Arnold tested end-to-end on a real device 2026-08-23 and confirmed it works. |
 | 4.5 | Real Apple/Google Wallet issuance (new, deferred) | ⚠️ Deferred | ☐ | Explicitly not started — waits for Phase 4 gate + a pilot request or Arnold's go-ahead, per phase-4-6-revision.md |
 | 5 | Win-back + attribution | ✅ Done | ✅ | Inngest nightly job, Twilio SMS, attributed_return logic, revenue widget |
-| 6 | Stripe billing | ❌ Not started (resequenced) | ☐ | Trigger is now "a specific establishment ready to convert from pilot to paid," not a fixed phase order — see phase-4-6-revision.md |
+| 6 | Stripe billing | ✅ Done (test mode) | ✅ | Arnold chose to start this now rather than wait for the original "pilot ready to convert" trigger (see phase-4-6-revision.md). Schema migrated, checkout/portal/webhook code built and tested (80/80 tests), and a real end-to-end test-mode Checkout run completed 2026-08-23 — webhook confirmed received and processed. **Test mode only** — going live (real card payments) needs Vercel env vars + a production webhook endpoint, see "Phase 6 — Stripe billing" notes below. |
 | 7 | GDPR | ✅ Done | ✅ | Right-to-erasure, audit log, legal pages |
 | 8 | Pre-launch | 🟡 Partial | ☐ | Sentry + Dependabot wired; backup-restore test and real pilot accounts NOT evidenced |
+
+---
+
+## Phase 6 — Stripe billing (gate passed, test mode)
+
+**Decision:** single paid plan, "Standard" at 49€/month — Arnold chose this over the multi-tier Starter/Growth/Pro split mentioned in some planning docs, to keep the first implementation simple. Multi-tier can be added later without a schema change (`Establishment.plan` is a plain string, not a fixed enum).
+
+**Gate passed 2026-08-23:** Arnold created a real Stripe account (test mode) and a "Standard" Product/Price (49€/mo). Claude Code installed the Stripe CLI (`winget install Stripe.StripeCli`) and ran the agent-driven non-interactive login flow (`stripe login --non-interactive` → Arnold approved the pairing code in his browser → `stripe login --complete`). With `STRIPE_SECRET_KEY` and `STRIPE_STANDARD_PRICE_ID` in `.env.local` and `stripe listen --forward-to localhost:3100/api/webhooks/stripe` running locally (its printed secret as `STRIPE_WEBHOOK_SECRET`), Arnold ran a real Checkout on `localhost:3100/dashboard/settings` with Stripe's test card (`4242 4242 4242 4242`). The `checkout.session.completed` webhook was received and returned `200` (confirmed in the `stripe listen` log), and the establishment's `plan`/`billingStatus`/`stripeCustomerId` updated correctly — this is the plan-execution-claude-code.md gate criterion, satisfied.
+
+**Built (2026-08-23):**
+- `stripe` npm package added.
+- `Establishment` migrated with `billingStatus`, `stripeCustomerId` (unique), `stripeSubscriptionId` (unique) — migration `20260823220000_establishment_billing`, applied to the live Supabase DB with Arnold's explicit confirmation per this repo's rule on existing-table migrations. `billingStatus` deliberately mirrors Stripe's own subscription status string (`active`/`past_due`/`canceled`/...) directly rather than a translated enum, since Stripe is the source of truth for billing state — same non-destructive philosophy as the events log, just for a different kind of state.
+- `lib/stripe/client.ts` — lazy client getter (throws if `STRIPE_SECRET_KEY` missing), mirrors the existing `lib/twilio/client.ts` pattern.
+- `lib/stripe/checkout.ts` — pure, unit-tested builders for Checkout/Portal session params (reuses the existing Stripe customer if there is one, falls back to `customer_email` for first-time subscribers).
+- `lib/stripe/webhook.ts` — pure event handler (`handleStripeEvent`), integration-tested against the real seeded test DB: `checkout.session.completed` activates the establishment, `invoice.payment_failed` marks `past_due` without touching `plan` (Stripe's own dunning flow drives the eventual downgrade via `customer.subscription.updated`), `customer.subscription.deleted` reverts `plan` to `"pilote"` **without deleting anything** (establishment/customers/events untouched, same pattern as GDPR erasure).
+- `app/api/webhooks/stripe/route.ts` — the sanctioned route-handler exception for external webhooks (per CLAUDE.md), verifies the signature via `stripe.webhooks.constructEvent`, rejects missing/invalid signatures with 401 (explicit acceptance criterion from plan-execution-claude-code.md, covered by `route.test.ts`).
+- `app/dashboard/settings/{page,actions}.tsx` — new "Paramètres" page (nav item's `soon: true` flag removed), shows current plan/billing-status badge, "Passer au plan payant" (Checkout) or "Gérer mon abonnement" (Customer Portal) depending on state. Built in the soft/tactile style from the start — no separate redesign pass needed later.
+- Deliberately **not** built yet: any actual feature-gating/enforcement based on plan. The phase doc left "what enforcement means" as an open decision; building the billing plumbing first without picking artificial restrictions to bolt on seemed safer than guessing what should be limited for pilots currently using the app for free.
+- Tests: 11 new (Vitest), all passing alongside the existing 69 (80/80 total). `tsc --noEmit` clean.
+
+**Still open — not blocking the gate, but needed before this works in production:**
+- `.env.local` has real test-mode secrets now (`STRIPE_SECRET_KEY`, `STRIPE_STANDARD_PRICE_ID`, `STRIPE_WEBHOOK_SECRET`) — gitignored, never committed, all documented (names only) in `.env.example`. The `STRIPE_WEBHOOK_SECRET` currently in `.env.local` is from the **local** `stripe listen` CLI session — it is NOT valid for production and will need to be replaced.
+- **Vercel env vars**: `STRIPE_SECRET_KEY` and `STRIPE_STANDARD_PRICE_ID` need to be added to the Vercel project settings before the deployed site's billing feature works at all (right now it would throw "not configured" in production).
+- **Production webhook endpoint**: needs a permanent endpoint created in the Stripe Dashboard (Developers → Webhooks → Add endpoint) pointing at `https://<production-domain>/api/webhooks/stripe`, subscribed to at least `checkout.session.completed`, `invoice.payment_failed`, `customer.subscription.updated`, `customer.subscription.deleted` — that endpoint's own signing secret goes into Vercel as `STRIPE_WEBHOOK_SECRET` (different from the local one).
+- Not yet manually tested: `invoice.payment_failed` (e.g. via `stripe trigger invoice.payment_failed`) and `customer.subscription.deleted` — covered by integration tests (`lib/stripe/webhook.test.ts`) against real logic, but not yet exercised through a real Stripe event locally the way `checkout.session.completed` was.
+- Going **live** (real cards, real money) is a separate, deliberate later step: swap `sk_test_...`/webhook secret for live-mode equivalents, and Stripe will require full business verification (bank details, business info) before live mode activates.
+- Still deliberately not built: plan-based feature-gating/enforcement (see "Built" section below) and multi-tier plans.
 
 ---
 
@@ -91,6 +118,7 @@ All converted 2026-08-23 (night), visually confirmed by Arnold on `localhost:310
 | 2026-08 | "Never advance phases before isolation tests pass" | Phase 8 pre-launch items (Sentry, Dependabot) shipped while Phase 6 (Stripe) has zero progress | Worth Arnold's attention — not necessarily wrong, but breaks the sequential-gate discipline the plan explicitly calls for |
 | 2026-08-23 | Original Phase 4 = one monolithic "Wallet passes" phase, before Phase 6 | Replaced by phase-4-6-revision.md: split into Phase 4 (Staff PWA + wallet-lite, no real issuance) and Phase 4.5 (real Apple/Google Wallet issuance, deferred until a pilot needs it or Arnold greenlights it); Phase 6 (Stripe) resequenced to trigger on a real pilot converting to paid rather than a fixed phase order | Real `.pkpass` issuance is higher-effort/lower-urgency than getting the anti-fraud validation loop working; unblocks pilot onboarding sooner. See phase-4-6-revision.md for full reasoning. |
 | 2026-08-23 | phase-4-6-revision.md said staff auth would be "PIN-based, not a full Supabase account per employee" | Implemented as a separate `StaffMember` roster table (own UUID, no Supabase auth.users row) rather than any EstablishmentUser variant — because `EstablishmentUser.id` is hard-FK'd to `auth.users`, so it can never NOT be a real Supabase account. The device running the Staff PWA still authenticates via the existing owner/Supabase session (RLS unchanged); the PIN only selects/attributes which `StaffMember` performed an action, it is not a second auth system. Matches the project's "Supabase Auth never homemade" rule. | This was flagged as an explicit open question before starting; resolved by design rather than by asking again, since the FK constraint made the answer unambiguous. |
+| 2026-08-23 | phase-4-6-revision.md: Phase 6 (Stripe) triggers on "a specific establishment ready to convert from pilot to paid," not a fixed order | Arnold chose to start Phase 6 immediately after finishing the frontend redesign pass, with no pilot yet in a convert-to-paid situation | Arnold's call — getting the billing plumbing built and tested ahead of time isn't wrong, just earlier than the original trigger condition. Also decided the plan structure while at it: one plan (Standard, 49€/mo) rather than the multi-tier Starter/Growth/Pro split floated elsewhere in the docs, to keep the first build simple. |
 
 ---
 
@@ -153,6 +181,22 @@ Tracks the "points to validate before full development" list from the Fidoo stra
 ---
 
 ## Change Log (append-only, most recent first)
+
+### 2026-08-23 (night, Phase 6 gate passed) — Real Stripe test-mode Checkout completed end-to-end
+- Arnold set up a real Stripe account (test mode), created a "Standard" Product/Price (49€/mo), and shared the test-mode secret key + Product ID.
+- Claude Code looked up the actual Price ID via the Stripe API directly (Arnold had sent the Product ID, not the Price ID — Checkout needs the latter), installed the Stripe CLI (`winget install Stripe.StripeCli`, package ID is `Stripe.StripeCli` not the more obvious `stripe.stripe-cli`), and completed authentication via the CLI's agent-driven non-interactive flow: `stripe login --non-interactive` prints a pairing URL/code, Arnold approved it in his browser, Claude Code then ran `stripe login --complete` to finish. No manual credential entry needed on Claude Code's side beyond the secret key Arnold already shared.
+- Wired `.env.local` with `STRIPE_SECRET_KEY`, `STRIPE_STANDARD_PRICE_ID`, and (after starting `stripe listen --forward-to localhost:3100/api/webhooks/stripe`) `STRIPE_WEBHOOK_SECRET`. Confirmed the webhook route's behavior changed correctly once configured (500 "not configured" → 401 "missing signature").
+- Arnold ran a real Checkout on `/dashboard/settings` with Stripe's `4242...` test card. Confirmed in the `stripe listen` log: `checkout.session.completed` received and returned `200`. This satisfies the phase's actual gate criterion (a real establishment completing Checkout end-to-end in test mode) — **Phase 6 gate marked passed**, tracker updated.
+- Explained clearly to Arnold throughout that test mode means no real money moves and the test card isn't a real card — he asked to confirm this before running the checkout, which was the right thing to double check before entering "payment" details into any form, even Stripe's own.
+- Local processes (dev server, `stripe listen`) stopped cleanly afterward; `.env.local` changes are gitignored and were never committed. What remains for a real production launch (Vercel env vars, a production webhook endpoint, live-mode keys) is documented in the "Phase 6" section above, not yet done.
+
+### 2026-08-23 (night, Stripe scaffolding) — Phase 6 billing plumbing built and migrated
+- Decision: single "Standard" plan at 49€/mo (Arnold's choice, over the multi-tier split floated in some docs) — see the new Deviations row.
+- Added `stripe` npm dependency. New: `lib/stripe/{client,checkout,webhook}.ts`, `app/api/webhooks/stripe/route.ts` (signature-verified, 401 on missing/invalid signature), `app/dashboard/settings/{page,actions}.tsx` (new billing UI, built soft/tactile from the start; removed its `soon: true` nav flag).
+- **Existing-table migration** `20260823220000_establishment_billing` (adds `billing_status`, `stripe_customer_id`, `stripe_subscription_id` to `establishments`) — shown to Arnold in full before running, per this repo's rule; Arnold confirmed, migration applied cleanly to the live Supabase DB via `prisma migrate deploy` (not `migrate dev`, since this project's shadow-DB diffing has always failed against Supabase's `auth` schema — same reason every prior migration in this repo was hand-written rather than autogenerated).
+- Tests written alongside the code (per CLAUDE.md): 11 new — pure unit tests for the Checkout/Portal param builders, integration tests for `handleStripeEvent` against the real seeded test DB (activation, `past_due` on payment failure, non-destructive downgrade on cancellation), and route-level tests for the signature-rejection acceptance criterion from plan-execution-claude-code.md. 80/80 total passing, `tsc --noEmit` clean.
+- Deliberately scoped out: any plan-based feature-gating/enforcement — the phase doc left "what enforcement means" open, and picking arbitrary restrictions to bolt on without a real product decision felt worse than just shipping the billing plumbing first.
+- **Not yet committed** — working tree only, pending Arnold's review. Also not yet gate-passed: still needs Arnold's real Stripe test-mode key + a Price ID + one real end-to-end Checkout run, per the phase's actual gate criterion. See "Phase 6 — Stripe billing" section above the Frontend/Design Status block for the full checklist.
 
 ### 2026-08-23 (night, truly final) — Frontend redesign: /login converted; screenshot re-capture deferred
 - Converted `/login` to the "soft & tactile" style (full-page warm background, rounded-[24px] card, rounded-full submit button with the coral CTA shadow) — the one page explicitly left out of the previous pass. `tsc --noEmit` clean, 69/69 tests pass.

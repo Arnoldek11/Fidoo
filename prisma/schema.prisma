@@ -17,6 +17,13 @@ model Establishment {
   name      String
   city      String
   plan      String   @default("pilote")
+  // Mirrors the Stripe subscription's own `status` string directly
+  // (trialing/active/past_due/canceled/incomplete/...) rather than
+  // reinventing a translation table — Stripe is the source of truth for
+  // billing state. Null until the establishment has ever had a subscription.
+  billingStatus        String?  @map("billing_status")
+  stripeCustomerId     String?  @unique @map("stripe_customer_id")
+  stripeSubscriptionId String?  @unique @map("stripe_subscription_id")
   // Used to estimate revenue attributed to win-back campaigns (Phase 5).
   // Nullable: until an owner sets it, attributed returns are still counted,
   // just without a revenue estimate.

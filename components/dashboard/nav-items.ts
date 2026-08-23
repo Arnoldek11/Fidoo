@@ -38,6 +38,6 @@ export const NAV_ITEMS: NavItem[] = [
 
 export const NAV_ITEMS_SECONDARY: NavItem[] = [
   { href: "/dashboard/audit", label: "Journal d'accès", icon: ScrollText },
-  { href: "/dashboard/settings", label: "Paramètres", icon: Settings, soon: true },
+  { href: "/dashboard/settings", label: "Paramètres", icon: Settings },
   { href: "/dashboard/help", label: "Aide", icon: HelpCircle, soon: true },
 ];
