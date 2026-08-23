@@ -26,7 +26,7 @@ export function DeleteCustomerButton({ customerId }: { customerId: string }) {
 
   return (
     <Dialog>
-      <DialogTrigger render={<Button variant="destructive" size="sm" />}>
+      <DialogTrigger render={<Button variant="destructive" size="sm" className="rounded-full" />}>
         <Trash2 />
         Supprimer (RGPD)
       </DialogTrigger>
@@ -39,8 +39,8 @@ export function DeleteCustomerButton({ customerId }: { customerId: string }) {
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <DialogClose render={<Button variant="outline" />}>Annuler</DialogClose>
-          <Button variant="destructive" onClick={handleConfirm} disabled={isPending}>
+          <DialogClose render={<Button variant="outline" className="rounded-full" />}>Annuler</DialogClose>
+          <Button variant="destructive" className="rounded-full" onClick={handleConfirm} disabled={isPending}>
             Supprimer définitivement
           </Button>
         </DialogFooter>

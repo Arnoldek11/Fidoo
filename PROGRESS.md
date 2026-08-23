@@ -8,13 +8,13 @@
 
 ## Snapshot (update this block every time)
 
-- **Last updated:** 2026-08-23
-- **Current phase:** Phase 4 (revised: Staff PWA + wallet-lite) built and manually verified by Arnold on a real device — gate considered passed; Phase 4.5 (real Apple/Google Wallet issuance) and Phase 6 (Stripe) deferred by design, see Deviations
+- **Last updated:** 2026-08-23 (night, later)
+- **Current phase:** All backend phases through 4/5/7 done (see tracker). Current work is a **visual redesign pass** ("soft & tactile" brand direction — real logo, Bricolage Grotesque + Nunito Sans, rounded cards with soft shadows, coral pill accents) rolling out page by page across the dashboard. Landing page + dashboard shell + Vue d'ensemble + Clients are done and confirmed; the rest of the dashboard (Campagnes, Wallet, QR & NFC, Fidélité, Équipe, Scanner, Journal d'accès) is still in the older flat/hairline shadcn style — see "Frontend / Design Status" below.
 - **Phase status:** In progress — see tracker
-- **Overall completion:** ~6.5 / 9 phases complete (0–8 plus the new 4.5, per plan-execution-claude-code.md + phase-4-6-revision.md)
+- **Overall completion:** ~6.5 / 9 phases complete (0–8 plus the new 4.5, per plan-execution-claude-code.md + phase-4-6-revision.md). The redesign pass is a cross-cutting UI initiative, not one of the numbered phases.
 - **Stack confirmed:** Next.js 16 (App Router) + TypeScript · Prisma 7 · Postgres/Supabase (Auth + RLS) · Tailwind + shadcn/ui · Inngest · Twilio · Sentry — **Stripe and passkit-generator not yet added**
 - **Brand name:** Fidoo (confirmed — check trademark status below)
-- **Last commits (as of last push):** 5178d08 (customer classification), 55f36b2 (onboarding wizard + public self-join), d48416c (Dashboard v2 rebuild) — all pushed to origin/main. Phase 4 (revised) work below is implemented and tested locally, **not yet committed/pushed** — see In Progress.
+- **Last commits (as of last push):** `4496dfa` (dashboard restyle + Supabase client timeout resilience), `f4e8209` (real logo + soft/tactile landing page), `439441a`/`2b1e9b3`/`0b5f8f3` (Phase 4 revised) — all pushed to origin/main, Vercel deploys automatically on push to main.
 
 ---
 
@@ -35,6 +35,33 @@
 
 ---
 
+## Frontend / Design Status
+
+Direction: **"soft & tactile"** — warm off-white, rounded-24-28px cards with real shadow depth (not hairline borders), coral pill buttons/badges, Bricolage Grotesque (headings) + Nunito Sans (body), real logo everywhere. Chosen by Arnold after comparing 4 options on a design canvas (a "precise & structural" direction was built and shipped first, then explicitly rejected — "I don't like it, propose some other styles"). Fonts are wired globally via `app/layout.tsx` + `app/globals.css` (`--font-heading`/`--font-sans`), so any new page automatically gets the right typography — only the per-component card/button styling needs manual conversion.
+
+**Done, live in production:**
+- Logo (real asset, not the old hand-drawn approximation) — header, sidebar, login, onboarding, favicon/app icon (`public/brand/`, `components/logo.tsx`)
+- Landing page (`app/page.tsx` + `components/landing/*`)
+- Dashboard shell: sidebar nav, establishment switcher (`app/dashboard/layout.tsx`, `components/dashboard/sidebar-nav.tsx`, `components/dashboard/establishment-switcher.tsx`)
+- Vue d'ensemble / overview page: KPI cards, activity chart, activity feed, period selector (`app/dashboard/page.tsx` + `components/dashboard/{kpi-card,activity-chart,activity-feed,period-select}.tsx`)
+- `/dashboard/customers` (list: pill filters/sort, rounded table card) + `/dashboard/customers/[id]` (detail: stat cards, history feed) + the Delete/Reverse-visit dialog trigger buttons — converted 2026-08-23 (later night), visually confirmed by Arnold on `localhost:3100` the same day.
+
+**Not yet converted — still the older flat/hairline shadcn style:**
+- `/dashboard/campaigns`
+- `/dashboard/wallet` (card editor)
+- `/dashboard/qr-nfc`
+- `/dashboard/loyalty`
+- `/dashboard/staff` (roster management)
+- `/dashboard/scan`
+- `/dashboard/audit`
+- `/onboarding` wizard, `/join/[establishmentId]` public flow, `/card/[id]` public card, `/staff/[establishmentId]` counter PWA
+
+None of this is broken — it's functionally complete, just visually inconsistent with the new pages until converted. Recommended approach for continuing: same pattern used for Vue d'ensemble — override card/button styling per-component via `className`/inline `style` (rounded-[Npx], soft `boxShadow`, brand hex colors), without touching the shared `components/ui/*` primitives, since those are used everywhere and a global change has much bigger blast radius than intended.
+
+**Also stale**: `public/landing-dashboard-preview.png` (the screenshot embedded in the landing page) still shows the *old* dashboard style — needs re-capturing from a logged-in session once more of the dashboard is converted, since capturing it now would still show a half-converted product.
+
+---
+
 ## What Works End-to-End Right Now
 
 - [x] Auth (Supabase) → dashboard, scoped per establishment via RLS + `asEstablishmentUser`
@@ -49,9 +76,9 @@
 
 ## In Progress
 
-- **Current task:** none — Phase 4 (revised) shipped (commit `0b5f8f3`, pushed to origin/main) and Arnold confirmed it works end-to-end on a real device.
-- **Blocked on:** Stripe still not started (Phase 6, waiting on a real pilot ready to convert); real Wallet issuance still not started (Phase 4.5, waiting on a pilot request or Arnold's go-ahead)
-- **Next logical step:** neither 4.5 nor 6 is triggered yet, so the highest-leverage work is Phase 8's remaining gaps — Supabase backup/restore test and onboarding the first 1-2 real pilot establishments — both of which need Arnold (Supabase dashboard access, business outreach), not more code. See Known Issues.
+- **Current task:** Frontend redesign pass, page by page (see "Frontend / Design Status" above). Landing + dashboard shell + Vue d'ensemble + Clients done, shipped, and visually confirmed by Arnold; 8 more dashboard/public pages still on the old style.
+- **Blocked on:** nothing — this is unblocked, ongoing work. Stripe (Phase 6) and real Wallet issuance (Phase 4.5) remain untriggered/deferred as before.
+- **Next logical step:** either keep converting dashboard pages one at a time (Campagnes is a reasonable next pick), or switch to Phase 8's remaining gaps (Supabase backup/restore test, first real pilot) — those need Arnold directly (dashboard access, business outreach), not more code. Both are legitimate next steps; no hard dependency between them.
 
 ---
 
@@ -96,6 +123,9 @@
 | No real pilot establishment accounts yet | Medium | Onboarding is now scripted (`scripts/onboard-pilot.ts` + `PILOT_ONBOARDING.md`) — still needs Arnold to have a real establishment ready and the one-time service-role-key + email-delivery prerequisites set up |
 | Vercel may look stale after push | Low | Build succeeds locally — check Deployments tab against the latest commit; likely propagation/cache lag |
 | Staff PWA session doesn't persist between page loads | Low | Re-entering a PIN after every reload is intentional-for-now scope-tightening, not a bug, but may annoy staff mid-shift — revisit if it's a real friction point after the first pilot |
+| 8 dashboard/public pages still in the old visual style | Low | Not broken, just inconsistent with the new "soft & tactile" pages — see Frontend / Design Status above for the exact list |
+| `public/landing-dashboard-preview.png` shows the old dashboard style | Low | Stale screenshot embedded in the landing page — re-capture once more pages are converted |
+| Supabase's `/auth/v1/user` endpoint intermittently hangs 60s+ with no response | Medium | Reproduced with raw `curl`, independent of the app — not a Supabase-side incident (checked their status page). Mitigated 2026-08-23: every Supabase client (`lib/supabase/{proxy,server,client}.ts`) now has an 8s fetch timeout (`lib/supabase/fetch-with-timeout.ts`), so a network blip fails fast instead of hanging the whole app for minutes. Root network cause is still unexplained — worth revisiting if it recurs. |
 
 ---
 
@@ -124,6 +154,18 @@ Tracks the "points to validate before full development" list from the Fidoo stra
 ---
 
 ## Change Log (append-only, most recent first)
+
+### 2026-08-23 (night, later) — Frontend redesign: Clients page converted
+- Converted `/dashboard/customers` (list) and `/dashboard/customers/[id]` (detail) to the "soft & tactile" style, following the exact pattern established on the overview page: rounded-[22–24px] white cards with `boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)"` replacing hairline-bordered cards/table, coral pill filter chips replacing flat filter buttons, warm text palette (`#3A322B` headings / `#8A7D6C` secondary / `#B0A290` tertiary) replacing generic `text-foreground`/`text-muted-foreground`, and the customer history timeline rebuilt as a single divided list inside one card (mirroring `ActivityFeed`) instead of one bordered `Card` per event. Also rounded the Delete/Reverse-visit dialog trigger buttons to pills for consistency. No changes to `components/ui/*` primitives — same per-component `className` override pattern as before.
+- Verified: `tsc --noEmit` clean, 69/69 Vitest tests pass, dev server starts and both routes correctly redirect unauthenticated requests to `/login` (no crash). Automated screenshot wasn't possible (no documented dev/test Supabase login credentials in this repo), so Arnold checked it live on `localhost:3100` and confirmed it looks right.
+
+### 2026-08-23 (later night) — Frontend redesign: logo, landing page, dashboard shell + overview
+- Real logo integrated everywhere (`public/brand/`, favicon/app icon), replacing the old hand-drawn SVG approximation.
+- Landing page redesign went through two rounds: a "precise & structural" (Linear/Stripe-docs) direction was built and shipped first, then explicitly rejected by Arnold ("I don't like it, propose some other styles"). Built 4 comparison mockups on a design canvas (editorial/warm, bold/graphic, dark premium, soft/tactile); Arnold picked **soft & tactile**, built into the real page, committed as `f4e8209`.
+- Extended the same direction to the dashboard: shared shell (sidebar, establishment switcher) and the Vue d'ensemble/overview page (KPI cards, activity chart, activity feed) — previewed on the same design canvas before building for real, approved, committed as `4496dfa`. Fonts (Bricolage Grotesque + Nunito Sans) consolidated to load globally instead of per-page.
+- **Found and fixed a real reliability bug while debugging**, unrelated to the redesign itself: Supabase's `/auth/v1/user` endpoint was intermittently hanging 60s+ with zero response (reproduced with raw `curl`, outside Next.js — not a Supabase-side incident). Every Supabase client made an unbounded call to it, so a network blip froze the whole app. Added a shared 8s fetch timeout to all three clients (middleware, Server Components/Actions, browser) — worst case now bounded to ~8s instead of minutes. Also fixed a misleading "wrong password" error that was actually a network timeout, and a pre-existing Base UI console warning on 3 buttons.
+- Remaining dashboard pages (Clients, Campagnes, Wallet, QR & NFC, Fidélité, Équipe, Scanner, Journal d'accès) are still in the old style — see "Frontend / Design Status" above for the exact list and the pattern to follow.
+- Verified throughout: `tsc --noEmit` clean, 69/69 tests, production build compiles all 22 routes, and actually screenshotted in a real headless browser at each step (not just compiled) — including an automated real login round-trip to verify the reliability fix, not just a visual check.
 
 ### 2026-08-23 (night) — Backup/restore runbook + pilot onboarding script
 - `BACKUP_RESTORE_RUNBOOK.md`: step-by-step for testing a Supabase restore into a throwaway scratch project (never onto the live one, since there's no separate staging environment) — includes RLS/policy verification, since a raw `pg_dump`/`pg_restore` can silently drop policies.

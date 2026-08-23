@@ -32,7 +32,7 @@ export function ReverseVisitButton({ customerId }: { customerId: string }) {
 
   return (
     <Dialog>
-      <DialogTrigger render={<Button variant="outline" size="sm" />}>
+      <DialogTrigger render={<Button variant="outline" size="sm" className="rounded-full" />}>
         <Undo2 />
         Corriger le dernier point
       </DialogTrigger>
@@ -47,8 +47,8 @@ export function ReverseVisitButton({ customerId }: { customerId: string }) {
         </DialogHeader>
         {message && <p className="text-sm text-muted-foreground">{message}</p>}
         <DialogFooter>
-          <DialogClose render={<Button variant="outline" />}>Fermer</DialogClose>
-          <Button variant="destructive" onClick={handleConfirm} disabled={isPending}>
+          <DialogClose render={<Button variant="outline" className="rounded-full" />}>Fermer</DialogClose>
+          <Button variant="destructive" className="rounded-full" onClick={handleConfirm} disabled={isPending}>
             Confirmer la correction
           </Button>
         </DialogFooter>

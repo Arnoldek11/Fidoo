@@ -5,7 +5,7 @@ import { logAudit } from "@/lib/audit/log";
 import { DeleteCustomerButton } from "./DeleteCustomerButton";
 import { ReverseVisitButton } from "./ReverseVisitButton";
 import { CustomerStatusBadge } from "@/components/dashboard/customer-status-badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Coffee,
   Gift,
@@ -56,17 +56,20 @@ export default async function CustomerDetailPage({
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-4">
-          <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary-tint text-xl font-semibold text-primary">
+          <span
+            className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary-tint text-xl font-bold text-primary"
+            style={{ boxShadow: "0 8px 18px -6px rgba(255,90,95,0.25)" }}
+          >
             {initial}
           </span>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-semibold text-foreground">
+              <h1 className="font-heading text-xl font-bold text-[#3A322B]">
                 {customer.name ?? customer.phone}
               </h1>
               <CustomerStatusBadge status={status} />
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm font-medium text-[#8A7D6C]">
               {customer.name && `${customer.phone} — `}Client depuis le{" "}
               {customer.createdAt.toLocaleDateString("fr-BE")}
             </p>
@@ -79,63 +82,90 @@ export default async function CustomerDetailPage({
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <Card className="border border-border shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+        <Card
+          className="rounded-[22px] border-none bg-white [--card-spacing:--spacing(5)]"
+          style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
+        >
           <CardContent>
-            <p className="text-sm text-muted-foreground">Visites</p>
-            <p className="mt-1 text-2xl font-semibold text-foreground">{visitCount}</p>
+            <p className="text-[13px] font-semibold text-[#8A7D6C]">Visites</p>
+            <p className="font-heading mt-2 text-2xl font-bold text-[#3A322B]">{visitCount}</p>
           </CardContent>
         </Card>
-        <Card className="border border-border shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+        <Card
+          className="rounded-[22px] border-none bg-white [--card-spacing:--spacing(5)]"
+          style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
+        >
           <CardContent>
-            <p className="text-sm text-muted-foreground">Points</p>
-            <p className="mt-1 text-2xl font-semibold text-foreground">{points}</p>
+            <p className="text-[13px] font-semibold text-[#8A7D6C]">Points</p>
+            <p className="font-heading mt-2 text-2xl font-bold text-[#3A322B]">{points}</p>
           </CardContent>
         </Card>
-        <Card className="border border-border shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+        <Card
+          className="rounded-[22px] border-none bg-white [--card-spacing:--spacing(5)]"
+          style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
+        >
           <CardContent>
-            <p className="text-sm text-muted-foreground">Dépenses estimées</p>
-            <p className="mt-1 text-2xl font-semibold text-foreground">
+            <p className="text-[13px] font-semibold text-[#8A7D6C]">Dépenses estimées</p>
+            <p className="font-heading mt-2 text-2xl font-bold text-[#3A322B]">
               {formatSpend(estimatedSpendCents)}
             </p>
           </CardContent>
         </Card>
-        <Card className="border border-border shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+        <Card
+          className="rounded-[22px] border-none bg-white [--card-spacing:--spacing(5)]"
+          style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
+        >
           <CardContent>
-            <p className="text-sm text-muted-foreground">Dernière visite</p>
-            <p className="mt-1 text-2xl font-semibold text-foreground">
+            <p className="text-[13px] font-semibold text-[#8A7D6C]">Dernière visite</p>
+            <p className="font-heading mt-2 text-2xl font-bold text-[#3A322B]">
               {lastVisitAt ? lastVisitAt.toLocaleDateString("fr-BE") : "—"}
             </p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="space-y-2">
-        <h2 className="text-sm font-semibold text-muted-foreground">Historique</h2>
-        <div className="space-y-2">
-          {timelineEvents.map((event) => {
-            const meta = EVENT_META[event.type];
-            const Icon = meta?.icon ?? CalendarCheck;
-            return (
-              <Card key={event.id} className="border border-border shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
-                <CardContent className="flex items-center justify-between py-3 text-sm">
-                  <span className="flex items-center gap-2">
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary-tint text-primary">
-                      <Icon className="size-3.5" strokeWidth={1.75} />
+      <Card
+        className="rounded-[24px] border-none bg-white [--card-spacing:--spacing(5.5)]"
+        style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
+      >
+        <CardHeader>
+          <CardTitle className="font-heading text-base font-bold text-[#3A322B]">
+            Historique
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {timelineEvents.length === 0 ? (
+            <p className="py-6 text-center text-sm font-medium text-[#8A7D6C]">
+              Aucun événement.
+            </p>
+          ) : (
+            <ul className="divide-y divide-[#F6ECDD]">
+              {timelineEvents.map((event) => {
+                const meta = EVENT_META[event.type];
+                const Icon = meta?.icon ?? CalendarCheck;
+                return (
+                  <li
+                    key={event.id}
+                    className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+                  >
+                    <span className="flex items-center gap-3">
+                      <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary-tint text-primary">
+                        <Icon className="size-4" strokeWidth={2} />
+                      </span>
+                      <span className="text-sm font-semibold text-[#3A322B]">
+                        {meta?.label ?? event.type}
+                      </span>
                     </span>
-                    {meta?.label ?? event.type}
-                  </span>
-                  <span className="text-muted-foreground">
-                    {event.createdAt.toLocaleString("fr-BE")}
-                  </span>
-                </CardContent>
-              </Card>
-            );
-          })}
-          {timelineEvents.length === 0 && (
-            <p className="text-sm text-muted-foreground">Aucun événement.</p>
+                    <span className="shrink-0 text-xs font-medium text-[#B0A290]">
+                      {event.createdAt.toLocaleString("fr-BE")}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
           )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
