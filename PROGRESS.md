@@ -9,7 +9,7 @@
 ## Snapshot (update this block every time)
 
 - **Last updated:** 2026-08-23 (night, later)
-- **Current phase:** All backend phases through 4/5/7 done (see tracker). Current work is a **visual redesign pass** ("soft & tactile" brand direction — real logo, Bricolage Grotesque + Nunito Sans, rounded cards with soft shadows, coral pill accents) rolling out page by page across the dashboard. Landing page + dashboard shell + Vue d'ensemble + Clients are done and confirmed; the rest of the dashboard (Campagnes, Wallet, QR & NFC, Fidélité, Équipe, Scanner, Journal d'accès) is still in the older flat/hairline shadcn style — see "Frontend / Design Status" below.
+- **Current phase:** All backend phases through 4/5/7 done (see tracker). Current work is a **visual redesign pass** ("soft & tactile" brand direction — real logo, Bricolage Grotesque + Nunito Sans, rounded cards with soft shadows, coral pill accents) rolling out page by page across the dashboard. Landing page + dashboard shell + Vue d'ensemble + Clients + Campagnes are done and confirmed; the rest of the dashboard (Wallet, QR & NFC, Fidélité, Équipe, Scanner, Journal d'accès) is still in the older flat/hairline shadcn style — Arnold asked to push through all remaining sidebar pages in one continuous session (2026-08-23 night) rather than one-at-a-time — see "Frontend / Design Status" below.
 - **Phase status:** In progress — see tracker
 - **Overall completion:** ~6.5 / 9 phases complete (0–8 plus the new 4.5, per plan-execution-claude-code.md + phase-4-6-revision.md). The redesign pass is a cross-cutting UI initiative, not one of the numbered phases.
 - **Stack confirmed:** Next.js 16 (App Router) + TypeScript · Prisma 7 · Postgres/Supabase (Auth + RLS) · Tailwind + shadcn/ui · Inngest · Twilio · Sentry — **Stripe and passkit-generator not yet added**
@@ -45,9 +45,9 @@ Direction: **"soft & tactile"** — warm off-white, rounded-24-28px cards with r
 - Dashboard shell: sidebar nav, establishment switcher (`app/dashboard/layout.tsx`, `components/dashboard/sidebar-nav.tsx`, `components/dashboard/establishment-switcher.tsx`)
 - Vue d'ensemble / overview page: KPI cards, activity chart, activity feed, period selector (`app/dashboard/page.tsx` + `components/dashboard/{kpi-card,activity-chart,activity-feed,period-select}.tsx`)
 - `/dashboard/customers` (list: pill filters/sort, rounded table card) + `/dashboard/customers/[id]` (detail: stat cards, history feed) + the Delete/Reverse-visit dialog trigger buttons — converted 2026-08-23 (later night), visually confirmed by Arnold on `localhost:3100` the same day.
+- `/dashboard/campaigns` (suggestion cards + campaign history feed) — converted 2026-08-23 (later night), visually confirmed by Arnold on `localhost:3100` the same day.
 
 **Not yet converted — still the older flat/hairline shadcn style:**
-- `/dashboard/campaigns`
 - `/dashboard/wallet` (card editor)
 - `/dashboard/qr-nfc`
 - `/dashboard/loyalty`
@@ -76,9 +76,9 @@ None of this is broken — it's functionally complete, just visually inconsisten
 
 ## In Progress
 
-- **Current task:** Frontend redesign pass, page by page (see "Frontend / Design Status" above). Landing + dashboard shell + Vue d'ensemble + Clients done, shipped, and visually confirmed by Arnold; 8 more dashboard/public pages still on the old style.
+- **Current task:** Frontend redesign pass — Arnold asked to push through all remaining sidebar pages back-to-back (Wallet, QR & NFC, Fidélité, Équipe, Scanner, Journal d'accès, plus onboarding/public flows) rather than one-at-a-time with a review in between each. Landing + dashboard shell + Vue d'ensemble + Clients + Campagnes done, shipped, and visually confirmed by Arnold.
 - **Blocked on:** nothing — this is unblocked, ongoing work. Stripe (Phase 6) and real Wallet issuance (Phase 4.5) remain untriggered/deferred as before.
-- **Next logical step:** either keep converting dashboard pages one at a time (Campagnes is a reasonable next pick), or switch to Phase 8's remaining gaps (Supabase backup/restore test, first real pilot) — those need Arnold directly (dashboard access, business outreach), not more code. Both are legitimate next steps; no hard dependency between them.
+- **Next logical step:** finish the remaining redesign pages, then switch to Phase 8's remaining gaps (Supabase backup/restore test, first real pilot) — those need Arnold directly (dashboard access, business outreach), not more code.
 
 ---
 
@@ -154,6 +154,13 @@ Tracks the "points to validate before full development" list from the Fidoo stra
 ---
 
 ## Change Log (append-only, most recent first)
+
+### 2026-08-23 (night, later still) — Frontend redesign: Campagnes converted; Clients mobile fix
+- Converted `/dashboard/campaigns` to the "soft & tactile" style: header button and suggestion cards (`components/dashboard/campaigns/suggestion-card.tsx`) rebuilt with rounded-[22px] white cards/soft shadows/warm palette, feature icon chips switched from `rounded-full` to `rounded-2xl` to match the established feature-icon convention (person avatars stay `rounded-full`, feature icons are `rounded-xl`/`rounded-2xl`), and the campaign history rebuilt as a single divided list inside one card (mirroring the Clients history pattern) instead of one bordered `Card` per campaign. Verified: `tsc --noEmit` clean, 69/69 tests, visually confirmed by Arnold on `localhost:3100`.
+- Also fixed a real mobile bug found while auditing the Clients pages for phone-width rendering: the customer detail page header (`app/dashboard/customers/[id]/page.tsx`) had the avatar/name block and the two action buttons sharing one non-wrapping flex row — on a phone-width screen they'd squeeze together and clip. Now stacks vertically below the `sm` breakpoint. Committed separately (`f1647fc`).
+- Note on process: attempted an automated headless-browser mobile check (Playwright + cached Chromium) using temporary credentials Arnold provided, but login failed against this environment's Supabase project and Arnold asked to drop it rather than keep retrying — no credentials were saved anywhere. Verification for both pages ended up being Arnold checking `localhost:3100` directly, which is now the established loop: convert → `tsc`/tests → dev server → Arnold reviews → commit → push.
+- Local dev note: hit a Turbopack crash (`0xc0000142`, DLL init failure spawning a PostCSS worker process) after several manual dev-server restarts/force-kills this session — resolved by deleting the `.next` cache directory. Worth remembering if `next dev` fails the same way again: stale Turbopack cache after an ungraceful stop, not a code issue.
+- Arnold asked to stop pausing for review after every single page and instead convert the remaining sidebar pages (Wallet, QR & NFC, Fidélité, Équipe, Scanner, Journal d'accès) back-to-back.
 
 ### 2026-08-23 (night, later) — Frontend redesign: Clients page converted
 - Converted `/dashboard/customers` (list) and `/dashboard/customers/[id]` (detail) to the "soft & tactile" style, following the exact pattern established on the overview page: rounded-[22–24px] white cards with `boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)"` replacing hairline-bordered cards/table, coral pill filter chips replacing flat filter buttons, warm text palette (`#3A322B` headings / `#8A7D6C` secondary / `#B0A290` tertiary) replacing generic `text-foreground`/`text-muted-foreground`, and the customer history timeline rebuilt as a single divided list inside one card (mirroring `ActivityFeed`) instead of one bordered `Card` per event. Also rounded the Delete/Reverse-visit dialog trigger buttons to pills for consistency. No changes to `components/ui/*` primitives — same per-component `className` override pattern as before.

@@ -16,16 +16,19 @@ export function SuggestionCard({
   ctaTitle?: string;
 }) {
   return (
-    <Card className="border border-border shadow-[0_1px_2px_rgba(0,0,0,0.03)] [--card-spacing:--spacing(6)]">
+    <Card
+      className="rounded-[22px] border-none bg-white [--card-spacing:--spacing(6)]"
+      style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
+    >
       <CardContent className="flex h-full flex-col gap-4">
-        <span className="flex size-10 items-center justify-center rounded-full bg-primary-tint text-primary">
-          <Icon className="size-5" strokeWidth={1.75} />
+        <span className="flex size-11 items-center justify-center rounded-2xl bg-primary-tint text-primary">
+          <Icon className="size-5" strokeWidth={2} />
         </span>
         <div className="flex-1 space-y-1">
-          <p className="font-medium text-foreground">{title}</p>
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <p className="font-heading font-bold text-[#3A322B]">{title}</p>
+          <p className="text-sm font-medium text-[#8A7D6C]">{description}</p>
         </div>
-        <Button disabled title={ctaTitle ?? "Bientôt disponible"} className="w-full">
+        <Button disabled title={ctaTitle ?? "Bientôt disponible"} className="w-full rounded-full">
           {ctaLabel}
         </Button>
       </CardContent>
