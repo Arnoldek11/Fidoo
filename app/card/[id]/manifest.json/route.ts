@@ -18,7 +18,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     display: "standalone",
     background_color: "#FAFAF8",
     theme_color: "#FF5A5F",
-    icons: [{ src: "/icon-mark.svg", sizes: "any", type: "image/svg+xml", purpose: "any" }],
+    icons: [{ src: "/icon-mark.png", sizes: "512x512", type: "image/png", purpose: "any" }],
   };
 
   return NextResponse.json(manifest, {

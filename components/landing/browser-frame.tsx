@@ -12,12 +12,7 @@ export function BrowserFrame({
   height: number;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
-      <div className="flex items-center gap-1.5 border-b border-border px-4 py-3">
-        <span className="size-2.5 rounded-full bg-muted-foreground/20" />
-        <span className="size-2.5 rounded-full bg-muted-foreground/20" />
-        <span className="size-2.5 rounded-full bg-muted-foreground/20" />
-      </div>
+    <div className="overflow-hidden rounded-[28px] border border-[#F0E4D3] bg-white shadow-[0_30px_60px_-15px_rgba(74,64,56,0.18)]">
       <Image src={src} alt={alt} width={width} height={height} className="w-full" />
     </div>
   );

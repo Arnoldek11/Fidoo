@@ -1,12 +1,9 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Nunito_Sans, Bricolage_Grotesque } from "next/font/google";
 import { Logo } from "@/components/logo";
 import { HeroPreview } from "@/components/landing/hero-preview";
 import { BrowserFrame } from "@/components/landing/browser-frame";
 import {
-  Users,
   Smartphone,
   ScanLine,
   AlertTriangle,
@@ -15,8 +12,17 @@ import {
   SmartphoneNfc,
   Wallet,
   UserCheck,
-  CheckCircle2,
+  Check,
 } from "lucide-react";
+
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-landing-display",
+});
+const nunito = Nunito_Sans({
+  subsets: ["latin"],
+  variable: "--font-landing-body",
+});
 
 const FEATURES = [
   {
@@ -62,53 +68,68 @@ const PLAN_FEATURES = [
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <header className="border-b border-border bg-card">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+    <div
+      className={`${bricolage.variable} ${nunito.variable} flex min-h-screen flex-col`}
+      style={{ background: "#FBF6EF", fontFamily: "var(--font-landing-body)" }}
+    >
+      <header className="px-6 pt-8">
+        <div className="mx-auto flex max-w-5xl items-center justify-between">
           <Link href="/" className="flex items-center">
             <Logo className="h-5 w-auto" />
           </Link>
-          <nav className="hidden items-center gap-6 text-sm text-muted-foreground sm:flex">
-            <a href="#produit" className="hover:text-foreground">
+          <nav
+            className="hidden items-center gap-1 rounded-full bg-white p-1.5 sm:flex"
+            style={{ boxShadow: "0 2px 10px rgba(74,64,56,0.06)" }}
+          >
+            <a href="#produit" className="rounded-full px-4 py-2 text-sm font-semibold text-[#4A4038] hover:text-primary">
               Produit
             </a>
-            <a href="#tarifs" className="hover:text-foreground">
+            <a href="#tarifs" className="rounded-full px-4 py-2 text-sm font-semibold text-[#4A4038] hover:text-primary">
               Tarifs
             </a>
-            <a href="#comment-ca-marche" className="hover:text-foreground">
+            <a href="#comment-ca-marche" className="rounded-full px-4 py-2 text-sm font-semibold text-[#4A4038] hover:text-primary">
               Pour les restaurants
             </a>
           </nav>
-          <div className="flex items-center gap-2">
-            <Button render={<a href="/login" />} variant="outline" size="sm">
+          <div className="flex items-center gap-3">
+            <Button href="/login" variant="ghost">
               Se connecter
             </Button>
-            <Button render={<a href="/login" />} size="sm">
+            <Button href="/login" variant="primary">
               Essayer gratuitement
             </Button>
           </div>
         </div>
       </header>
 
-      <section className="bg-background">
+      <section>
         <div className="mx-auto grid max-w-5xl grid-cols-1 items-center gap-16 px-6 py-20 lg:grid-cols-2 lg:py-28">
-          <div className="space-y-6">
-            <Badge className="border-transparent bg-primary-tint text-primary">
-              Pour cafés, boulangeries &amp; restaurants
-            </Badge>
-            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+          <div>
+            <div
+              className="mb-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2"
+              style={{ boxShadow: "0 2px 10px rgba(74,64,56,0.06)" }}
+            >
+              <span className="size-2 shrink-0 rounded-full bg-primary" />
+              <span className="text-[13px] font-bold text-[#4A4038]">
+                Pour cafés, boulangeries &amp; restaurants
+              </span>
+            </div>
+            <h1
+              className="text-4xl leading-[1.05] font-bold tracking-tight text-[#3A322B] sm:text-5xl lg:text-[64px]"
+              style={{ fontFamily: "var(--font-landing-display)" }}
+            >
               Faites revenir vos clients.
             </h1>
-            <p className="max-w-lg text-lg text-muted-foreground">
+            <p className="mt-6 max-w-md text-lg leading-relaxed font-medium text-[#6B5F52]">
               Une carte de fidélité que vos clients gardent dans leur téléphone, et un tableau
               de bord qui vous dit qui revient — sans app à faire télécharger.
             </p>
-            <div>
-              <Button size="lg" render={<a href="/login" />}>
+            <div className="mt-8 flex items-center gap-4">
+              <Button href="/login" variant="primary" size="lg">
                 Créer mon programme
-                <ArrowRight />
+                <ArrowRight className="size-4" />
               </Button>
-              <p className="mt-2 text-sm text-muted-foreground">Aucune carte bancaire requise</p>
+              <span className="text-sm font-medium text-[#8A7D6C]">Aucune carte bancaire requise</span>
             </div>
           </div>
 
@@ -116,7 +137,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-background pb-20">
+      <section className="pb-20">
         <div className="mx-auto max-w-4xl px-6">
           <BrowserFrame
             src="/landing-dashboard-preview.png"
@@ -127,45 +148,57 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="produit" className="bg-muted/30 py-20">
+      <section id="produit" className="py-20">
         <div className="mx-auto max-w-5xl px-6">
-          <h2 className="text-center text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          <h2
+            className="text-center text-2xl font-bold tracking-tight text-[#3A322B] sm:text-3xl"
+            style={{ fontFamily: "var(--font-landing-display)" }}
+          >
             Un système de fidélité, pas juste une carte à points
           </h2>
           <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2">
-            {FEATURES.map((feature) => (
-              <Card
+            {FEATURES.map((feature, i) => (
+              <div
                 key={feature.title}
-                className="border border-border shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
+                className="flex gap-4 rounded-[28px] bg-white p-7"
+                style={{
+                  boxShadow: "0 16px 32px -12px rgba(74,64,56,0.12)",
+                  transform: i % 2 === 0 ? "rotate(-0.6deg)" : "rotate(0.6deg)",
+                }}
               >
-                <CardContent className="flex gap-4">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-tint text-primary">
-                    <feature.icon className="size-5" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground">{feature.title}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{feature.description}</p>
-                  </div>
-                </CardContent>
-              </Card>
+                <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary-tint text-primary">
+                  <feature.icon className="size-5" strokeWidth={2} />
+                </div>
+                <div>
+                  <p className="font-bold text-[#3A322B]">{feature.title}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-[#6B5F52]">{feature.description}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="comment-ca-marche" className="bg-background py-20">
+      <section id="comment-ca-marche" className="py-20">
         <div className="mx-auto max-w-5xl px-6">
-          <h2 className="text-center text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          <h2
+            className="text-center text-2xl font-bold tracking-tight text-[#3A322B] sm:text-3xl"
+            style={{ fontFamily: "var(--font-landing-display)" }}
+          >
             Aussi simple qu&apos;un tap
           </h2>
-          <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-3">
+          <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
             {STEPS.map((step, i) => (
-              <div key={step.label} className="flex flex-col items-center gap-3 text-center">
-                <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary-tint text-primary">
-                  <step.icon className="size-6" strokeWidth={1.75} />
+              <div
+                key={step.label}
+                className="flex flex-col items-center gap-3 rounded-[28px] bg-white px-6 py-8 text-center"
+                style={{ boxShadow: "0 16px 32px -12px rgba(74,64,56,0.1)" }}
+              >
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary-tint text-primary">
+                  <step.icon className="size-6" strokeWidth={2} />
                 </span>
-                <p className="text-sm text-foreground">
-                  <span className="font-medium">{i + 1}.</span> {step.label}
+                <p className="text-sm font-semibold text-[#3A322B]">
+                  <span className="text-primary">{i + 1}.</span> {step.label}
                 </p>
               </div>
             ))}
@@ -173,55 +206,96 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="tarifs" className="bg-muted/30 py-20">
+      <section id="tarifs" className="py-20">
         <div className="mx-auto max-w-5xl px-6">
-          <h2 className="text-center text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          <h2
+            className="text-center text-2xl font-bold tracking-tight text-[#3A322B] sm:text-3xl"
+            style={{ fontFamily: "var(--font-landing-display)" }}
+          >
             Tarifs
           </h2>
-          <p className="mx-auto mt-2 max-w-md text-center text-muted-foreground">
+          <p className="mx-auto mt-2 max-w-md text-center font-medium text-[#8A7D6C]">
             Un seul plan, tout compris. Pas de paliers compliqués à comparer.
           </p>
-          <Card className="mx-auto mt-10 max-w-md border border-border shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
-            <CardContent className="space-y-6">
-              <div>
-                <p className="font-semibold text-foreground">Fidoo</p>
-                <p className="mt-1">
-                  <span className="text-4xl font-semibold text-foreground">49€</span>
-                  <span className="text-muted-foreground"> /mois par établissement</span>
-                </p>
-              </div>
-              <ul className="space-y-2.5 text-sm">
-                {PLAN_FEATURES.map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-foreground">
-                    <CheckCircle2 className="size-4 shrink-0 text-primary" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Button size="lg" className="w-full" render={<a href="/login" />}>
+          <div
+            className="mx-auto mt-10 max-w-md rounded-[28px] bg-white p-8"
+            style={{ boxShadow: "0 24px 50px -12px rgba(74,64,56,0.16)" }}
+          >
+            <p className="font-bold text-[#3A322B]">Fidoo</p>
+            <p className="mt-1">
+              <span
+                className="text-4xl font-bold text-[#3A322B]"
+                style={{ fontFamily: "var(--font-landing-display)" }}
+              >
+                49€
+              </span>
+              <span className="font-medium text-[#8A7D6C]"> /mois par établissement</span>
+            </p>
+            <ul className="mt-6 space-y-3">
+              {PLAN_FEATURES.map((f) => (
+                <li key={f} className="flex items-center gap-3 text-sm font-medium text-[#3A322B]">
+                  <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary-tint text-primary">
+                    <Check className="size-3" strokeWidth={3} />
+                  </span>
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-7">
+              <Button href="/login" variant="primary" size="lg" full>
                 Essayer gratuitement
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </section>
 
-      <footer className="border-t border-border bg-background py-8">
-        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 px-6 text-sm text-muted-foreground sm:flex-row">
-          <span className="flex items-center gap-2">
-            <Users className="size-4" />
-            Fidoo — Bruxelles
-          </span>
+      <footer className="py-10">
+        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 px-6 text-sm font-medium text-[#8A7D6C] sm:flex-row">
+          <span>fidoo — Bruxelles</span>
           <div className="flex gap-4">
-            <a href="/legal/privacy" className="hover:underline">
+            <a href="/legal/privacy" className="hover:text-primary">
               Confidentialité
             </a>
-            <a href="/legal/terms" className="hover:underline">
+            <a href="/legal/terms" className="hover:text-primary">
               Conditions
             </a>
           </div>
         </div>
       </footer>
     </div>
+  );
+}
+
+function Button({
+  href,
+  children,
+  variant,
+  size = "sm",
+  full = false,
+}: {
+  href: string;
+  children: React.ReactNode;
+  variant: "primary" | "ghost";
+  size?: "sm" | "lg";
+  full?: boolean;
+}) {
+  return (
+    <a
+      href={href}
+      className={`inline-flex items-center justify-center gap-2 rounded-full font-bold transition-transform hover:scale-[1.02] ${
+        size === "lg" ? "px-7 py-4 text-base" : "px-5 py-2.5 text-sm"
+      } ${full ? "w-full" : ""} ${
+        variant === "primary" ? "bg-primary text-white" : "bg-white text-[#4A4038]"
+      }`}
+      style={{
+        boxShadow:
+          variant === "primary"
+            ? "0 10px 24px -4px rgba(255,90,95,0.4)"
+            : "0 2px 10px rgba(74,64,56,0.06)",
+      }}
+    >
+      {children}
+    </a>
   );
 }
