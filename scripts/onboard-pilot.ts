@@ -1,6 +1,13 @@
-import "dotenv/config";
+import { config } from "dotenv";
 import { createClient } from "@supabase/supabase-js";
 import { prisma } from "@/lib/prisma";
+
+// `dotenv/config`'s default import only loads .env — Next.js loads .env.local
+// itself for the app, but nothing does that for standalone scripts. The
+// Supabase keys this script needs live in .env.local, so both must be loaded
+// explicitly (.env.local last, so it can override .env if they ever overlap).
+config({ path: ".env" });
+config({ path: ".env.local", override: true });
 
 /**
  * One-time setup for a real pilot establishment: creates their Supabase Auth
