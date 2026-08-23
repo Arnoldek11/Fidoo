@@ -26,7 +26,7 @@ export async function getCustomerCard(customerId: string): Promise<CustomerCard 
   const events = await prisma.event.findMany({
     where: {
       customerId,
-      type: { in: ["points_added", "reward_redeemed"] },
+      type: { in: ["points_added", "reward_redeemed", "points_reversed"] },
     },
     select: { type: true, metadata: true },
   });

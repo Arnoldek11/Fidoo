@@ -156,7 +156,7 @@ export async function getCustomerList(
     // balance — avoids N+1 queries without re-deriving the balance formula
     // a second time in SQL.
     const balanceEvents = await tx.event.findMany({
-      where: { type: { in: ["points_added", "reward_redeemed"] } },
+      where: { type: { in: ["points_added", "reward_redeemed", "points_reversed"] } },
       select: { customerId: true, type: true, metadata: true },
     });
     const eventsByCustomer = new Map<string, { type: string; metadata: unknown }[]>();

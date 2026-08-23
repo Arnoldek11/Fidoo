@@ -16,7 +16,7 @@ export const DEFAULT_REDEMPTION_COST = 10;
  * is simpler and more reliable than a separate batch job trying to
  * reconstruct "did anyone come back" after the fact.
  */
-export async function addVisit(userId: string, customerId: string) {
+export async function addVisit(userId: string, customerId: string, staffId?: string) {
   return asEstablishmentUser(userId, async (tx) => {
     const establishmentUser = await tx.establishmentUser.findUniqueOrThrow({
       where: { id: userId },
@@ -27,6 +27,7 @@ export async function addVisit(userId: string, customerId: string) {
       data: {
         establishmentId,
         customerId,
+        staffId,
         type: "visit",
         metadata: {},
       },
@@ -36,6 +37,7 @@ export async function addVisit(userId: string, customerId: string) {
       data: {
         establishmentId,
         customerId,
+        staffId,
         type: "points_added",
         metadata: { points: POINTS_PER_VISIT },
       },
@@ -66,7 +68,7 @@ export function computeBalance(
     if (event.type === "points_added") {
       return total + (metadata.points ?? POINTS_PER_VISIT);
     }
-    if (event.type === "reward_redeemed") {
+    if (event.type === "reward_redeemed" || event.type === "points_reversed") {
       return total - (metadata.points ?? DEFAULT_REDEMPTION_COST);
     }
     return total;
@@ -83,7 +85,7 @@ export async function getCustomerBalance(
 ): Promise<number> {
   return asEstablishmentUser(userId, async (tx) => {
     const events = await tx.event.findMany({
-      where: { customerId, type: { in: ["points_added", "reward_redeemed"] } },
+      where: { customerId, type: { in: ["points_added", "reward_redeemed", "points_reversed"] } },
       select: { type: true, metadata: true },
     });
 

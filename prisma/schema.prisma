@@ -23,10 +23,11 @@ model Establishment {
   averageBasketCents Int?     @map("average_basket_cents")
   createdAt DateTime @default(now()) @map("created_at")
 
-  users      EstablishmentUser[]
-  customers  Customer[]
-  events     Event[]
-  auditLogs  AuditLog[]
+  users        EstablishmentUser[]
+  customers    Customer[]
+  events       Event[]
+  auditLogs    AuditLog[]
+  staffMembers StaffMember[]
 
   @@map("establishments")
 }
@@ -79,19 +80,50 @@ model Event {
   // develop holes just because one customer was forgotten. See
   // lib/customers/erasure.ts.
   customerId      String?  @map("customer_id") @db.Uuid
-  // One of: visit, points_added, reward_redeemed, campaign_sent,
-  // attributed_return (validated with Zod at the Server Action boundary,
-  // not a DB enum, since later phases add more types).
+  // Nullable: only set for staff-validated counter actions (Phase 4 Staff
+  // PWA). SET NULL (not CASCADE) so deactivating/removing a staff member
+  // never rewrites or drops historical events — the ledger stays append-only
+  // and untouched, it just loses the attribution link.
+  staffId         String?  @map("staff_id") @db.Uuid
+  // One of: visit, points_added, reward_redeemed, points_reversed,
+  // campaign_sent, attributed_return (validated with Zod at the Server
+  // Action boundary, not a DB enum, since later phases add more types).
   type            String
   metadata        Json     @default("{}")
   createdAt       DateTime @default(now()) @map("created_at")
 
   establishment Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   customer      Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  staff         StaffMember?  @relation(fields: [staffId], references: [id], onDelete: SetNull)
 
   @@index([customerId, createdAt])
   @@index([establishmentId, type, createdAt])
   @@map("events")
+}
+
+// Phase 4 (revised): a lightweight per-employee roster for counter-staff
+// attribution. Deliberately NOT an EstablishmentUser — that model's id is
+// hard-FK'd to auth.users (a real Supabase Auth account per row), and the
+// whole point of "PIN-based, not a full Supabase account per employee" is
+// to avoid provisioning one. Security boundary is unchanged: the device
+// running the Staff PWA still authenticates as a normal EstablishmentUser
+// (RLS via asEstablishmentUser), and the PIN only selects/attributes which
+// staff member is performing the action — it is not a second auth system.
+model StaffMember {
+  id              String   @id @default(uuid()) @db.Uuid
+  establishmentId String   @map("establishment_id") @db.Uuid
+  name            String
+  // Salted hash (scrypt), never the raw PIN. See lib/staff/pin.ts.
+  pinHash         String   @map("pin_hash")
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  establishment Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  events        Event[]
+
+  @@unique([establishmentId, name])
+  @@index([establishmentId])
+  @@map("staff_members")
 }
 
 // Append-only audit trail of sensitive customer-data access (Phase 7 GDPR

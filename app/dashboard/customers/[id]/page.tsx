@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCustomerHistory } from "@/lib/loyalty/stats";
 import { logAudit } from "@/lib/audit/log";
 import { DeleteCustomerButton } from "./DeleteCustomerButton";
+import { ReverseVisitButton } from "./ReverseVisitButton";
 import { CustomerStatusBadge } from "@/components/dashboard/customer-status-badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -11,6 +12,7 @@ import {
   Megaphone,
   TrendingUp,
   CalendarCheck,
+  Undo2,
   type LucideIcon,
 } from "lucide-react";
 
@@ -18,6 +20,7 @@ const EVENT_META: Record<string, { label: string; icon: LucideIcon }> = {
   visit: { label: "Visite", icon: CalendarCheck },
   points_added: { label: "Point ajouté", icon: Coffee },
   reward_redeemed: { label: "Récompense échangée", icon: Gift },
+  points_reversed: { label: "Correction — point annulé", icon: Undo2 },
   campaign_sent: { label: "Campagne envoyée", icon: Megaphone },
   attributed_return: { label: "Retour attribué à une campagne", icon: TrendingUp },
 };
@@ -69,7 +72,10 @@ export default async function CustomerDetailPage({
             </p>
           </div>
         </div>
-        <DeleteCustomerButton customerId={customer.id} />
+        <div className="flex items-center gap-2">
+          <ReverseVisitButton customerId={customer.id} />
+          <DeleteCustomerButton customerId={customer.id} />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

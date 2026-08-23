@@ -3,9 +3,19 @@ import type { Metadata } from "next";
 import { getCustomerCard } from "@/lib/loyalty/publicCard";
 import { StampProgress } from "@/components/loyalty/stamp-progress";
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  return {
+    robots: { index: false, follow: false },
+    // Per-customer manifest (not the shared /manifest.json) so "Add to Home
+    // Screen" reopens this exact card — see manifest.json/route.ts.
+    manifest: `/card/${id}/manifest.json`,
+  };
+}
 
 export default async function CustomerCardPage({
   params,
