@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import { computeBalance, DEFAULT_REDEMPTION_COST } from "@/lib/loyalty/events";
+import { computeBalance } from "@/lib/loyalty/events";
+import { getPublicProgram, type ProgramSettings } from "@/lib/loyalty/program";
 
-export type CustomerCard = {
+export type CustomerCard = ProgramSettings & {
   name: string | null;
   establishmentName: string;
   balance: number;
-  goal: number;
 };
 
 /**
@@ -23,18 +23,21 @@ export async function getCustomerCard(customerId: string): Promise<CustomerCard 
   });
   if (!customer) return null;
 
-  const events = await prisma.event.findMany({
-    where: {
-      customerId,
-      type: { in: ["points_added", "reward_redeemed", "points_reversed"] },
-    },
-    select: { type: true, metadata: true },
-  });
+  const [events, program] = await Promise.all([
+    prisma.event.findMany({
+      where: {
+        customerId,
+        type: { in: ["points_added", "reward_redeemed", "points_reversed"] },
+      },
+      select: { type: true, metadata: true },
+    }),
+    getPublicProgram(customer.establishmentId),
+  ]);
 
   return {
+    ...program,
     name: customer.name,
     establishmentName: customer.establishment.name,
     balance: computeBalance(events),
-    goal: DEFAULT_REDEMPTION_COST,
   };
 }

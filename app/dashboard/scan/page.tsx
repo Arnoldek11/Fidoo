@@ -5,8 +5,10 @@ import {
   lookupCustomer,
   recordVisitForExistingCustomer,
   registerCustomerAndRecordVisit,
+  ownerRedeemReward,
   type CustomerLookupResult,
   type RecordVisitResult,
+  type OwnerRedeemResult,
 } from "./actions";
 import { CardQrCode } from "./CardQrCode";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Camera, CheckCircle2, RotateCcw, Search, UserPlus } from "lucide-react";
+import { Camera, CheckCircle2, Gift, RotateCcw, Search, UserPlus } from "lucide-react";
 
 const SCANNER_ELEMENT_ID = "qr-scanner";
 
@@ -33,6 +35,7 @@ export default function ScanPage() {
   const [phone, setPhone] = useState("");
   const [lookup, setLookup] = useState<CustomerLookupResult | null>(null);
   const [result, setResult] = useState<RecordVisitResult | null>(null);
+  const [redeem, setRedeem] = useState<OwnerRedeemResult | null>(null);
   const [name, setName] = useState("");
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -121,10 +124,20 @@ export default function ScanPage() {
     });
   }
 
+  function handleRedeem(customerId: string) {
+    startTransition(async () => {
+      const res = await ownerRedeemReward(customerId);
+      setRedeem(res);
+      setLookup(null);
+      setResult(null);
+    });
+  }
+
   function reset() {
     setPhone("");
     setLookup(null);
     setResult(null);
+    setRedeem(null);
     setName("");
     setConsent(false);
     setError(null);
@@ -177,10 +190,21 @@ export default function ScanPage() {
         >
           <CardContent className="space-y-3">
             <p className="text-sm font-semibold text-[#3A322B]">
-              {lookup.name ?? "Client"} — {lookup.balance} point
+              {lookup.name ?? "Client"} — {lookup.balance} / {lookup.goal} tampon
               {lookup.balance > 1 ? "s" : ""}
             </p>
+            {lookup.balance >= lookup.goal && (
+              <Button
+                className="w-full rounded-full"
+                onClick={() => handleRedeem(lookup.customerId)}
+                disabled={isPending}
+              >
+                <Gift />
+                Offrir la récompense ({lookup.rewardLabel})
+              </Button>
+            )}
             <Button
+              variant={lookup.balance >= lookup.goal ? "outline" : "default"}
               className="w-full rounded-full"
               onClick={() => handleRecordVisit(lookup.customerId)}
               disabled={isPending}
@@ -245,6 +269,37 @@ export default function ScanPage() {
             </Button>
           </CardContent>
         </Card>
+      )}
+
+      {redeem?.status === "redeemed" && (
+        <Card
+          className="rounded-[22px] border-none bg-white"
+          style={{ boxShadow: "0 14px 28px -10px rgba(255,90,95,0.16)" }}
+        >
+          <CardContent className="space-y-3">
+            <p className="flex items-center gap-1.5 font-bold text-primary">
+              <Gift className="size-4" />
+              Récompense offerte : {redeem.rewardLabel}
+            </p>
+            <p className="text-sm font-medium text-[#8A7D6C]">
+              Nouveau solde : {redeem.balance} tampon{redeem.balance > 1 ? "s" : ""} — la carte
+              repart pour un tour.
+            </p>
+            <Button variant="outline" className="w-full rounded-full" onClick={reset}>
+              <RotateCcw />
+              Scanner un autre client
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {redeem?.status === "insufficient" && (
+        <Alert variant="destructive">
+          <AlertDescription>
+            Carte incomplète — {redeem.balance} / {redeem.goal} tampons. La récompense n&apos;a pas
+            été offerte.
+          </AlertDescription>
+        </Alert>
       )}
     </div>
   );

@@ -8,6 +8,8 @@ import { getCustomerBalance } from "@/lib/loyalty/events";
 import { hasMarketingConsent } from "@/lib/customers/consent";
 import { verifyStaffMemberPin } from "@/lib/staff/roster";
 import { recordStaffValidation, registerAndValidate } from "@/lib/staff/validate";
+import { redeemReward } from "@/lib/loyalty/redeem";
+import { getProgram } from "@/lib/loyalty/program";
 
 const phoneSchema = z
   .string()
@@ -51,7 +53,15 @@ export async function verifyPin(
 }
 
 export type StaffCustomerLookupResult =
-  | { status: "found"; customerId: string; name: string | null; balance: number; hasConsent: boolean }
+  | {
+      status: "found";
+      customerId: string;
+      name: string | null;
+      balance: number;
+      goal: number;
+      rewardLabel: string;
+      hasConsent: boolean;
+    }
   | { status: "not_found" }
   | { status: "invalid"; message: string };
 
@@ -68,18 +78,30 @@ export async function staffLookupCustomer(
   const customer = await findCustomerByPhone(userId, parsed.data);
   if (!customer) return { status: "not_found" };
 
-  const balance = await getCustomerBalance(userId, customer.id);
+  const [balance, program] = await Promise.all([
+    getCustomerBalance(userId, customer.id),
+    getProgram(userId),
+  ]);
   return {
     status: "found",
     customerId: customer.id,
     name: customer.name,
     balance,
+    goal: program.goal,
+    rewardLabel: program.rewardLabel,
     hasConsent: hasMarketingConsent(customer),
   };
 }
 
 export type StaffValidateResult =
-  | { status: "ok"; customerId: string; name: string | null; balance: number }
+  | {
+      status: "ok";
+      customerId: string;
+      name: string | null;
+      balance: number;
+      goal: number;
+      rewardLabel: string;
+    }
   | { status: "cooldown"; retryAfter: string }
   | { status: "invalid"; message: string };
 
@@ -95,8 +117,18 @@ export async function staffValidateVisit(
     return { status: "cooldown", retryAfter: result.retryAfter.toISOString() };
   }
 
-  const customer = await findCustomerById(userId, customerId);
-  return { status: "ok", customerId, name: customer?.name ?? null, balance: result.balance };
+  const [customer, program] = await Promise.all([
+    findCustomerById(userId, customerId),
+    getProgram(userId),
+  ]);
+  return {
+    status: "ok",
+    customerId,
+    name: customer?.name ?? null,
+    balance: result.balance,
+    goal: program.goal,
+    rewardLabel: program.rewardLabel,
+  };
 }
 
 const registrationSchema = z.object({
@@ -116,6 +148,38 @@ export async function staffRegisterAndValidate(
   }
 
   const userId = await requireMatchingEstablishment(establishmentId);
-  const result = await registerAndValidate(userId, staffId, parsed.data);
-  return { status: "ok", customerId: result.customerId, name: parsed.data.name ?? null, balance: result.balance };
+  const [result, program] = await Promise.all([
+    registerAndValidate(userId, staffId, parsed.data),
+    getProgram(userId),
+  ]);
+  return {
+    status: "ok",
+    customerId: result.customerId,
+    name: parsed.data.name ?? null,
+    balance: result.balance,
+    goal: program.goal,
+    rewardLabel: program.rewardLabel,
+  };
+}
+
+export type StaffRedeemResult =
+  | { status: "redeemed"; balance: number; rewardLabel: string }
+  | { status: "insufficient"; balance: number; goal: number };
+
+/**
+ * Redeems a full card at the counter, attributed to the logged-in staff
+ * member — the counterpart of the customer's "Récompense débloquée !
+ * Montrez cet écran au comptoir" screen on the tap flow.
+ */
+export async function staffRedeemReward(
+  establishmentId: string,
+  staffId: string,
+  customerId: string
+): Promise<StaffRedeemResult> {
+  const userId = await requireMatchingEstablishment(establishmentId);
+  const result = await redeemReward(userId, staffId, customerId);
+  if (result.status === "insufficient") {
+    return { status: "insufficient", balance: result.balance, goal: result.goal };
+  }
+  return { status: "redeemed", balance: result.balance, rewardLabel: result.rewardLabel };
 }
