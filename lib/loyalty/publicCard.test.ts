@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
 import { prisma } from "@/lib/prisma";
 import { getCustomerCard } from "@/lib/loyalty/publicCard";
-import { DEFAULT_REDEMPTION_COST } from "@/lib/loyalty/events";
+import { DEFAULT_PROGRAM } from "@/lib/loyalty/program";
 
 describe("getCustomerCard (public)", () => {
   let establishmentId: string;
@@ -51,10 +51,10 @@ describe("getCustomerCard (public)", () => {
 
     const card = await getCustomerCard(customer.id);
     expect(card).toEqual({
+      ...DEFAULT_PROGRAM,
       name: "Jean",
       establishmentName: "Café A",
       balance: 2,
-      goal: DEFAULT_REDEMPTION_COST,
     });
   });
 });

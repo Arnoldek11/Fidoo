@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { findCustomerById, findCustomerByPhone, registerCustomer } from "@/lib/loyalty/customers";
 import { addVisit, getCustomerBalance } from "@/lib/loyalty/events";
 import { hasMarketingConsent } from "@/lib/customers/consent";
+import { redeemReward } from "@/lib/loyalty/redeem";
+import { getProgram } from "@/lib/loyalty/program";
 
 const phoneSchema = z
   .string()
@@ -22,7 +24,15 @@ async function requireUserId(): Promise<string> {
 }
 
 export type CustomerLookupResult =
-  | { status: "found"; customerId: string; name: string | null; balance: number; hasConsent: boolean }
+  | {
+      status: "found";
+      customerId: string;
+      name: string | null;
+      balance: number;
+      goal: number;
+      rewardLabel: string;
+      hasConsent: boolean;
+    }
   | { status: "not_found" }
   | { status: "invalid"; message: string };
 
@@ -39,14 +49,33 @@ export async function lookupCustomer(rawPhone: string): Promise<CustomerLookupRe
     return { status: "not_found" };
   }
 
-  const balance = await getCustomerBalance(userId, customer.id);
+  const [balance, program] = await Promise.all([
+    getCustomerBalance(userId, customer.id),
+    getProgram(userId),
+  ]);
   return {
     status: "found",
     customerId: customer.id,
     name: customer.name,
     balance,
+    goal: program.goal,
+    rewardLabel: program.rewardLabel,
     hasConsent: hasMarketingConsent(customer),
   };
+}
+
+export type OwnerRedeemResult =
+  | { status: "redeemed"; balance: number; rewardLabel: string }
+  | { status: "insufficient"; balance: number; goal: number };
+
+/** Owner-side redemption (no staff attribution) — solo owners use /dashboard/scan as their counter. */
+export async function ownerRedeemReward(customerId: string): Promise<OwnerRedeemResult> {
+  const userId = await requireUserId();
+  const result = await redeemReward(userId, undefined, customerId);
+  if (result.status === "insufficient") {
+    return { status: "insufficient", balance: result.balance, goal: result.goal };
+  }
+  return { status: "redeemed", balance: result.balance, rewardLabel: result.rewardLabel };
 }
 
 export type RecordVisitResult = { customerId: string; name: string | null; balance: number };

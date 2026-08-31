@@ -32,7 +32,10 @@ export default async function CustomerCardPage({
         className="w-full max-w-xs overflow-hidden rounded-[24px] bg-white"
         style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.14)" }}
       >
-        <div className="bg-primary px-6 py-5 text-center text-primary-foreground">
+        <div
+          className="px-6 py-5 text-center"
+          style={{ backgroundColor: card.cardColor, color: card.textColor }}
+        >
           <p className="text-xs font-semibold uppercase tracking-wide opacity-80">
             {card.establishmentName}
           </p>
@@ -40,7 +43,13 @@ export default async function CustomerCardPage({
         </div>
 
         <div className="p-6">
-          <StampProgress balance={card.balance} goal={card.goal} />
+          <StampProgress
+            balance={card.balance}
+            goal={card.goal}
+            rewardLabel={card.rewardLabel}
+            icon={card.stampIcon}
+            accentColor={card.cardColor}
+          />
         </div>
       </div>
     </div>

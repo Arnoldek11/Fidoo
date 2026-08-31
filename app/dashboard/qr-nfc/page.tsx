@@ -2,14 +2,15 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { asEstablishmentUser } from "@/lib/db/scoped";
 import { JoinQrCode } from "@/components/dashboard/qr-nfc/join-qr-code";
+import { TapNfcCard } from "@/components/dashboard/qr-nfc/tap-nfc-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Printer, Nfc, SmartphoneNfc, Wallet, UserCheck } from "lucide-react";
+import { Download, Printer, SmartphoneNfc, Stamp, Wallet } from "lucide-react";
 
 const STEPS = [
-  { icon: SmartphoneNfc, label: "Approchez le téléphone" },
-  { icon: Wallet, label: "La carte s'ouvre" },
-  { icon: UserCheck, label: "Le client rejoint Fidoo" },
+  { icon: SmartphoneNfc, label: "Le client approche son téléphone" },
+  { icon: Stamp, label: "Son tampon est ajouté automatiquement" },
+  { icon: Wallet, label: "Sa carte se remplit jusqu'à la récompense" },
 ];
 
 export default async function QrNfcPage() {
@@ -61,31 +62,12 @@ export default async function QrNfcPage() {
           style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
         >
           <CardHeader className="border-b border-[#F6ECDD] pb-4">
-            <CardTitle className="font-heading text-base font-bold text-[#3A322B]">NFC</CardTitle>
+            <CardTitle className="font-heading text-base font-bold text-[#3A322B]">
+              NFC — Tap & tampon
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 pt-6">
-            <div className="flex items-center gap-3 rounded-2xl bg-[#F6ECDD] p-4">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#8A7D6C]">
-                <Nfc className="size-5" strokeWidth={2} />
-              </span>
-              <div>
-                <p className="text-sm font-semibold text-[#3A322B]">Aucun tag configuré</p>
-                <p className="text-xs font-medium text-[#8A7D6C]">Approchez un tag pour commencer</p>
-              </div>
-            </div>
-            <dl className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <dt className="font-medium text-[#8A7D6C]">Identifiant du tag</dt>
-                <dd className="mt-0.5 font-semibold text-[#3A322B]">—</dd>
-              </div>
-              <div>
-                <dt className="font-medium text-[#8A7D6C]">Dernier scan</dt>
-                <dd className="mt-0.5 font-semibold text-[#3A322B]">—</dd>
-              </div>
-            </dl>
-            <Button className="w-full rounded-full" disabled title="Bientôt disponible">
-              Configurer un nouveau tag
-            </Button>
+          <CardContent className="pt-6">
+            <TapNfcCard establishmentId={establishmentUser.establishmentId} />
           </CardContent>
         </Card>
       </div>

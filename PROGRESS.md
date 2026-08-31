@@ -8,7 +8,7 @@
 
 ## Snapshot (update this block every time)
 
-- **Last updated:** 2026-08-23 (night, Phase 6 gate passed)
+- **Last updated:** 2026-08-31 (self-tap flow + card customization + redemption built; `loyalty_programs` migration applied with Arnold's explicit approval, 97/97 tests pass, customer-facing flow e2e-verified in a real browser — see changelog)
 - **Current phase:** The **visual redesign pass** is complete — see "Frontend / Design Status" below. **Phase 6 (Stripe billing) gate passed**: Arnold ran a real end-to-end test-mode Checkout on `localhost:3100` (test card `4242...`), the webhook (`checkout.session.completed`) was received and processed (`200`, confirmed in the `stripe listen` log), and the establishment's plan/billing status updated correctly in the live database. See "Phase 6" notes below the tracker for what's still open for a real production launch (Vercel env vars, a production webhook endpoint).
 - **Phase status:** In progress — see tracker
 - **Overall completion:** ~7 / 9 phases complete (0–8 plus the new 4.5, per plan-execution-claude-code.md + phase-4-6-revision.md).
@@ -98,6 +98,7 @@ All converted 2026-08-23 (night), visually confirmed by Arnold on `localhost:310
 - [x] Win-back automation: nightly Inngest detection → Twilio SMS → 14-day return attribution → revenue widget
 - [x] GDPR: erasure (SET NULL on events, preserves aggregates), audit log, legal pages
 - [x] Sentry + Dependabot live
+- [x] Customer self-tap loop (2026-08-31): NFC tag/QR at the till opens `/tap/[establishmentId]` → recognized device gets an instant stamp (animated card), new customer does a 10-second signup then gets stamped; same 2h cooldown as staff validation; events tagged `source: "self_tap"` in the journal
 
 ---
 
@@ -145,7 +146,8 @@ All converted 2026-08-23 (night), visually confirmed by Arnold on `localhost:310
 | Issue | Severity | Status |
 |---|---|---|
 | No Stripe integration — no plan-gating/billing enforcement | High | Blocks monetizing real pilots |
-| Wallet/QR/NFC pages have explicit "Bientôt disponible" stubs (download/print QR poster, NFC tag config) | Low | Intentional, not broken |
+| QR page still has "Bientôt disponible" stubs (download/print QR poster); NFC stub replaced 2026-08-31 by the real tap link + write-a-tag instructions | Low | Intentional, not broken |
+| Self-tap replay: the tap URL is static, so a bookmarked link can re-stamp from home once per 2h cooldown window | Low-Med | Accepted for v1 (same trade-off as budget tap-loyalty products); TapStamp-style short-lived challenge tokens or NTAG 424 rotating URLs are the upgrade path if pilots see abuse. Events are tagged `source: "self_tap"` so abuse is visible and reversible in the journal |
 | `gh` CLI not installed; npm/npx need PATH refresh after Node install via winget | Low | Dev-environment annoyance only |
 | No tested Supabase backup/restore | Medium | Runbook ready (`BACKUP_RESTORE_RUNBOOK.md`) — Arnold still needs to actually run it once in the Supabase dashboard |
 | No real pilot establishment accounts yet | Medium | Onboarding is now scripted (`scripts/onboard-pilot.ts` + `PILOT_ONBOARDING.md`) — still needs Arnold to have a real establishment ready and the one-time service-role-key + email-delivery prerequisites set up |
@@ -181,6 +183,25 @@ Tracks the "points to validate before full development" list from the Fidoo stra
 ---
 
 ## Change Log (append-only, most recent first)
+
+### 2026-08-31 (later) — Card customization by the establishment + reward redemption loop
+- Arnold asked to "enhance Fidoo", specifically that the restaurant decides how the card looks. Built:
+- **New table `loyalty_programs`** (one row per establishment, lazily created on first save): `goal` (stamps for reward), `reward_label`, `card_color`, `text_color`, `stamp_icon`. RLS policies (SELECT/INSERT/UPDATE, no DELETE) in the same migration per CLAUDE.md; readers fall back to shared defaults (`lib/loyalty/program.ts` `DEFAULT_PROGRAM`) when the row is absent, so nothing breaks for establishments that never touch the editor. Migration `20260831120000_loyalty_programs` was initially blocked by the permission classifier (writes to the live Supabase DB); **applied cleanly after Arnold's explicit "yes I approve"** — new table only, no existing table touched.
+- **`/dashboard/loyalty` is now a real editor** (the "Modifier le programme" stub is gone): goal chips (6/8/10/12), reward label, card/text color (reusing `ColorField` + presets from the wallet editor), a 10-icon curated stamp-icon picker (`components/loyalty/stamp-icons.ts`), live preview of the exact customer card, dynamic program-rules summary. Server Action `saveProgram` Zod-validates (`programInputSchema`: hex colors, icon allowlist, goal 4–30) and upserts RLS-scoped.
+- **Custom design applied everywhere the customer sees the card**: `/card/[id]` (header color/text color, icon, accent, reward label), the `/tap` result card, and the `/join/.../welcome` preview. `StampProgress` gained `icon`/`accentColor` props and an adaptive grid (5/4/3 columns by divisibility); defaults unchanged.
+- **Reward redemption exists now** — previously `reward_redeemed` was only a display label with no way to create one; a full card could never be redeemed. New `lib/loyalty/redeem.ts`: checks balance ≥ goal and inserts the immutable `reward_redeemed` event in one transaction (double-submit safe), snapshotting `{ points: goal, rewardLabel }` into metadata so later goal changes never rewrite what an old redemption cost. Wired into BOTH counters: Staff PWA (`staffRedeemReward`, staff-attributed, "Offrir la récompense" when the card is full — including right after the visit that fills it) and owner-side `/dashboard/scan` (`ownerRedeemReward`, no staff attribution). Lookup/validate results now show `balance / goal` and the reward name.
+- Tests written alongside: `program.test.ts` (defaults, upsert, public read, RLS isolation from café B, schema validation) and `redeem.test.ts` (insufficient, snapshot metadata + staff attribution, double-redeem blocked, custom goal/label honored); `publicCard.test.ts` updated for the extended card shape. **97/97 tests pass** after the migration, `tsc --noEmit` clean.
+- E2e-verified in a real headless browser: seeded a custom program (dark card, croissant icon, goal 8, "un café offert") for the test café, ran the full tap signup → stamp flow, and confirmed the custom design renders on both the tap result and `/card` (screenshots checked visually; test data cleaned up afterward). Caught and fixed a real French copy bug in the process: `StampProgress` said "avant votre un café offert" — now detects labels that carry their own article and drops the "votre". The dashboard editor itself needs Arnold's manual review on `localhost:3100/dashboard/loyalty` (no working login credentials for automated dashboard checks, per the established review loop).
+- Not committed — pending Arnold's review.
+
+### 2026-08-31 — Customer self-tap "tap & stamp" flow (TapStamp-style, original implementation)
+- Arnold asked to "reverse engineer the tap stamp app from the UK" — identified as TapStamp (tapstamp.co.uk): NFC pod at the till, customer taps their phone, a web page opens (no app), a stamp is added instantly. Researched their publicly documented flow and rebuilt the *experience* as an original Fidoo implementation (no code/assets copied), in the soft/tactile style.
+- New public route `/tap/[establishmentId]` — the URL to write on an NFC tag or print as QR at the till. Recognized device (per-establishment httpOnly cookie holding the customer's own card UUID, ~13-month maxAge) → instant stamp with an animated card fill. Unknown device → 10-second signup (phone, optional first name, optional SMS-consent checkbox, privacy link) → first stamp. Cooldown → "Visite déjà comptée, revenez après HH:MM". Full card → "Récompense débloquée, montrez cet écran au comptoir". GET is side-effect free; the stamp is a Server Action fired on mount (prefetchers/crawlers can't stamp), Strict-Mode double-fire guarded client-side, real double-taps guarded server-side by the cooldown.
+- New `lib/loyalty/selfTap.ts`: same immutable `visit` + `points_added` event pair as staff validation, `staffId` null, `metadata.source = "self_tap"` for attribution/reversal; shares the 2h cooldown constant with staff validation (one visit = one stamp regardless of channel, either channel's visit arms the cooldown for both); win-back `maybeAttributeReturn` still fires. Public unauthenticated WRITE, deliberately outside `asEstablishmentUser`/RLS — same bearer-UUID trust model as `publicCard.ts`, write narrowly scoped to the verified (customer, establishment) pair; documented in-code. `selfJoinAndTap` upserts by (establishment, phone) with `update: {}` so an existing customer's name/consent are never overwritten by a tap signup; consent optional, `consentChannel: "self_tap"` only when ticked. **No schema change, no migration** — event `type` is Zod/app-validated, not a DB enum.
+- `/dashboard/qr-nfc`: NFC stub replaced with the real per-establishment tap link — QR preview, copy button, and write-it-to-a-tag instructions (NTAG213+, e.g. "NFC Tools" app); steps card rewritten for the tap flow. `StampProgress` gained an optional `popIndex` prop (newly earned stamp zooms in); default rendering unchanged for `/card` and `/dashboard/loyalty`.
+- Tests written alongside per CLAUDE.md: 10 new Vitest integration tests (`lib/loyalty/selfTap.test.ts`) — not_found/isolation, self_tap tagging, cooldown both directions (staff visit blocks self-tap), post-cooldown re-stamp, consent semantics, existing-customer no-overwrite. 90/90 total passing, `tsc --noEmit` clean. Also e2e'd in a real headless browser against the dev server: signup → stamp → reload → recognized + cooldown → card link, screenshots verified visually; e2e customers cleaned from the DB afterward. Fixed a Base UI `nativeButton` warning on the link-rendered button along the way.
+- Known trade-off logged under Known Issues: the tap URL is static, so replay-from-home is possible once per cooldown window — accepted for v1, upgrade path is TapStamp's short-lived challenge tokens or NTAG 424 rotating URLs.
+- **Not committed** — working tree only, pending Arnold's review, per this repo's convention.
 
 ### 2026-08-23 (night, Phase 6 gate passed) — Real Stripe test-mode Checkout completed end-to-end
 - Arnold set up a real Stripe account (test mode), created a "Standard" Product/Price (49€/mo), and shared the test-mode secret key + Product ID.

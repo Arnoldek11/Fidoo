@@ -30,13 +30,38 @@ model Establishment {
   averageBasketCents Int?     @map("average_basket_cents")
   createdAt DateTime @default(now()) @map("created_at")
 
-  users        EstablishmentUser[]
-  customers    Customer[]
-  events       Event[]
-  auditLogs    AuditLog[]
-  staffMembers StaffMember[]
+  users          EstablishmentUser[]
+  customers      Customer[]
+  events         Event[]
+  auditLogs      AuditLog[]
+  staffMembers   StaffMember[]
+  loyaltyProgram LoyaltyProgram?
 
   @@map("establishments")
+}
+
+// Per-establishment loyalty card design + rules: how many stamps earn the
+// reward, what the reward is called, and how the customer-facing card looks
+// (color, text color, stamp icon). One row per establishment, created lazily
+// on first save — every reader falls back to the shared defaults
+// (lib/loyalty/program.ts) when the row doesn't exist yet. Appearance and
+// thresholds only: balances stay computed from the events journal, and a
+// redemption stores the goal it was redeemed at in its own event metadata,
+// so changing the goal later never rewrites history.
+model LoyaltyProgram {
+  id              String   @id @default(uuid()) @db.Uuid
+  establishmentId String   @unique @map("establishment_id") @db.Uuid
+  goal            Int      @default(10)
+  rewardLabel     String   @default("récompense") @map("reward_label")
+  cardColor       String   @default("#FF5A5F") @map("card_color")
+  textColor       String   @default("#FFFFFF") @map("text_color")
+  stampIcon       String   @default("coffee") @map("stamp_icon")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+
+  establishment Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+
+  @@map("loyalty_programs")
 }
 
 // id is NOT auto-generated: it must equal the Supabase Auth user's id (auth.uid()),

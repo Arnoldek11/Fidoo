@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getPublicEstablishment } from "@/lib/loyalty/publicJoin";
-import { DEFAULT_REDEMPTION_COST } from "@/lib/loyalty/events";
+import { getPublicProgram } from "@/lib/loyalty/program";
 import { StampProgress } from "@/components/loyalty/stamp-progress";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -25,6 +25,8 @@ export default async function JoinWelcomePage({
   const establishment = await getPublicEstablishment(establishmentId);
   if (!establishment) notFound();
 
+  const program = await getPublicProgram(establishmentId);
+
   return (
     <div className="flex min-h-screen flex-col px-6 py-10" style={{ background: "#FBF6EF" }}>
       <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center text-center">
@@ -35,7 +37,13 @@ export default async function JoinWelcomePage({
           className="mt-8 rounded-[24px] bg-white p-6"
           style={{ boxShadow: "0 14px 28px -10px rgba(74,64,56,0.1)" }}
         >
-          <StampProgress balance={PREVIEW_BALANCE} goal={DEFAULT_REDEMPTION_COST} />
+          <StampProgress
+            balance={PREVIEW_BALANCE}
+            goal={program.goal}
+            rewardLabel={program.rewardLabel}
+            icon={program.stampIcon}
+            accentColor={program.cardColor}
+          />
         </div>
 
         <div className="mt-8 space-y-2.5">
